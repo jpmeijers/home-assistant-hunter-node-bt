@@ -1,0 +1,85 @@
+{
+  "controller": {
+    "name": "NODE-BT-707796",
+    "serial_number": 16707796,
+    "station_count": 2,
+    "firmware": "2.2A",
+    "bluetooth_firmware": "1.02"
+  },
+  "captured_at": "2026-09-07",
+  "programs": {
+    "Program_A": {
+      "Name": "Program A",
+      "ScheduleType": 0,
+      "ScheduleDays": 127,
+      "IntervalDayCount": 0,
+      "IntervalDayNext": 0,
+      "StartTimes": [
+        810,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535
+      ],
+      "RunTime": [
+        180,
+        60,
+        0,
+        0
+      ]
+    },
+    "Program_B": {
+      "Name": "Program B",
+      "ScheduleType": 0,
+      "ScheduleDays": 127,
+      "IntervalDayCount": 0,
+      "IntervalDayNext": 0,
+      "StartTimes": [
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535
+      ],
+      "RunTime": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "Program_C": {
+      "Name": "Program C",
+      "ScheduleType": 0,
+      "ScheduleDays": 127,
+      "IntervalDayCount": 0,
+      "IntervalDayNext": 0,
+      "StartTimes": [
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535
+      ],
+      "RunTime": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "stations": {
+    "Station_1": "Pots",
+    "Station_2": "Grass"
+  }
+}
