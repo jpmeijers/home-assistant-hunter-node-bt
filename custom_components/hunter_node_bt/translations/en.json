@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select a Hunter NODE-BT",
+        "data": {
+          "address": "Controller",
+          "pin": "Four-digit PIN",
+          "run_time": "Default valve run time (seconds)"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "Set up {name}",
+        "description": "Enter the controller PIN and the run time used when a valve is opened without an explicit duration.",
+        "data": {
+          "pin": "Four-digit PIN",
+          "run_time": "Default valve run time (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "The PIN was rejected",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This controller is already configured",
+      "no_devices_found": "No connectable Hunter NODE-BT controllers were found"
+    }
+  },
+  "entity": {
+    "button": {
+      "stop_all": {"name": "Stop all watering"}
+    },
+    "sensor": {
+      "battery": {"name": "Battery"},
+      "moisture": {"name": "Moisture"},
+      "controller_state": {
+        "name": "Controller state",
+        "state": {
+          "idle": "Idle",
+          "manual_station": "Manual station",
+          "system_off": "System off",
+          "programmable_off": "Programmable off",
+          "rain_off": "Rain off",
+          "rain_delay": "Rain delay",
+          "soil_off": "Soil off",
+          "program_a": "Program A",
+          "program_b": "Program B",
+          "program_c": "Program C",
+          "manual_all": "Manual all stations",
+          "manual_program_a": "Manual program A",
+          "manual_program_b": "Manual program B",
+          "manual_program_c": "Manual program C"
+        }
+      },
+      "daily_run_time": {"name": "Daily run time"}
+    }
+  },
+  "services": {
+    "start_watering": {
+      "name": "Start watering",
+      "description": "Run a station for a bounded controller-enforced duration.",
+      "fields": {
+        "duration": {
+          "name": "Duration",
+          "description": "Number of seconds to water."
+        }
+      }
+    }
+  }
+}

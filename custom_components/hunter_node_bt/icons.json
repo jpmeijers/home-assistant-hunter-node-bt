@@ -1,0 +1,10 @@
+{
+  "services": {
+    "start_watering": {"service": "mdi:water"}
+  },
+  "entity": {
+    "button": {
+      "stop_all": {"default": "mdi:stop-circle-outline"}
+    }
+  }
+}
