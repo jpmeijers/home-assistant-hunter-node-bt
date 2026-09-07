@@ -419,6 +419,10 @@ schedule test caused watering because the test program had no enabled start time
 
 ## Project artifacts
 
+- `custom_components/hunter_node_bt/`: HACS-compatible Home Assistant custom integration with Bluetooth discovery,
+  PIN setup, timed station valves, stop-all, and telemetry sensors.
+- `tests/test_protocol.py`: fixture-driven tests for authentication, framing, response assembly, models, and verified
+  manual-control payloads.
 - `tools/ble_probe.py`: working direct BLE discovery/auth/read/manual/raw-command probe.
 - `tools/unpack_assembly_store.py`: XABA/XALZ .NET Android assembly extractor.
 - `requirements-dev.txt`: Bleak dependency used by the probe.

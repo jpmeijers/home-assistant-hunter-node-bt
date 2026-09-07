@@ -126,8 +126,8 @@ UART-convention hypothesis. Both roles were later confirmed on the controller. T
 authentication or command encoding; those came from app analysis and direct
 testing. [piBeacon advertisement definitions](https://github.com/kw123/pibeacon/blob/master/piBeacon.indigoPlugin/Contents/Server%20Plugin/knownBeaconTags.json), [BLE UART reference implementation](https://github.com/nkolban/ESP32_BLE_Arduino/blob/master/examples/BLE_uart/BLE_uart.ino)
 
-The following was the original investigation plan. Its first six milestones are now complete to the extent described
-above; the Home Assistant implementation and deployment validation remain.
+The following was the original investigation plan. Its first seven milestones now have an initial implementation to the
+extent described above; deployment and hardware validation of the Home Assistant layer remain.
 
 1. **Establish a reproducible test setup.**
 
