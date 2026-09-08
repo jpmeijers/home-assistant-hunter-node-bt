@@ -1,0 +1,5 @@
+{"at": "2026-09-08T18:05:18.730040+00:00", "event": "HA started", "evidence": "/home/jpmeijers/PycharmProjects/hunter-node-bt-ha/captures/ha_test_2026-09-08_180517"}
+{"at": "2026-09-08T18:05:20.737179+00:00", "event": "HA discovered controller", "name": "NODE-BT-707796", "source": "02:00:00:00:00:01", "rssi": -47}
+{"at": "2026-09-08T18:05:36.130832+00:00", "event": "Config entry loaded", "state": "ConfigEntryState.LOADED"}
+{"at": "2026-09-08T18:06:03.079517+00:00", "event": "PASS service call", "domain": "text", "service": "set_value", "data": {"entity_id": "text.node_bt_707796_program_b_name", "value": "HA live test"}}
+{"at": "2026-09-08T18:07:25.120791+00:00", "event": "HA stopped"}

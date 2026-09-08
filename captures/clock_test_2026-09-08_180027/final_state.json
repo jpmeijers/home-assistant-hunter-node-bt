@@ -1,0 +1,24 @@
+{
+  "State": {
+    "ControllerState": 0,
+    "ClickSensorState": false,
+    "NextWaterTime": 810,
+    "DailyRunTime": 270,
+    "Station_1": {
+      "State": 0,
+      "Remaining": 0
+    },
+    "Station_2": {
+      "State": 0,
+      "Remaining": 0
+    },
+    "Station_3": {
+      "State": 0,
+      "Remaining": 0
+    },
+    "Station_4": {
+      "State": 0,
+      "Remaining": 0
+    }
+  }
+}

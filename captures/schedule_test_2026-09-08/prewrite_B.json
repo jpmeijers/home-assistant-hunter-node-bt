@@ -1,0 +1,23 @@
+{
+  "Name": "External edit",
+  "ScheduleType": 0,
+  "ScheduleDays": 22,
+  "IntervalDayCount": 0,
+  "IntervalDayNext": 0,
+  "StartTimes": [
+    65535,
+    65535,
+    65535,
+    65535,
+    65535,
+    65535,
+    65535,
+    65535
+  ],
+  "RunTime": [
+    0,
+    0,
+    0,
+    0
+  ]
+}

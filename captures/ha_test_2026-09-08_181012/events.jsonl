@@ -1,0 +1,16 @@
+{"at": "2026-09-08T18:10:13.044817+00:00", "event": "HA started", "evidence": "/home/jpmeijers/PycharmProjects/hunter-node-bt-ha/captures/ha_test_2026-09-08_181012"}
+{"at": "2026-09-08T18:10:14.046659+00:00", "event": "HA discovered controller", "name": "NODE-BT-707796", "source": "02:00:00:00:00:01", "rssi": -58}
+{"at": "2026-09-08T18:10:37.127059+00:00", "event": "Config entry loaded", "state": "ConfigEntryState.LOADED"}
+{"at": "2026-09-08T18:10:37.129907+00:00", "event": "Waiting for entity enable reload to settle"}
+{"at": "2026-09-08T18:11:36.076961+00:00", "event": "PASS service call", "domain": "text", "service": "set_value", "data": {"entity_id": "text.node_bt_707796_program_b_name", "value": "HA live test"}}
+{"at": "2026-09-08T18:11:45.075519+00:00", "event": "PASS service call", "domain": "number", "service": "set_value", "data": {"entity_id": "number.node_bt_707796_program_b_station_1_runtime", "value": 17}}
+{"at": "2026-09-08T18:11:56.079260+00:00", "event": "PASS service call", "domain": "number", "service": "set_value", "data": {"entity_id": "number.node_bt_707796_program_b_station_1_runtime", "value": 0}}
+{"at": "2026-09-08T18:12:08.081512+00:00", "event": "PASS service call", "domain": "time", "service": "set_value", "data": {"entity_id": "time.node_bt_707796_program_b_start_1", "time": "06:17:00"}}
+{"at": "2026-09-08T18:12:16.080185+00:00", "event": "PASS service call", "domain": "hunter_node_bt", "service": "clear_start_time", "data": {"entity_id": "time.node_bt_707796_program_b_start_1"}}
+{"at": "2026-09-08T18:12:27.082086+00:00", "event": "PASS service call", "domain": "switch", "service": "turn_off", "data": {"entity_id": "switch.node_bt_707796_program_b_monday"}}
+{"at": "2026-09-08T18:12:40.079561+00:00", "event": "PASS service call", "domain": "switch", "service": "turn_on", "data": {"entity_id": "switch.node_bt_707796_program_b_monday"}}
+{"at": "2026-09-08T18:12:52.079440+00:00", "event": "PASS service call", "domain": "hunter_node_bt", "service": "set_program", "data": {"device_id": "224d5b475c03e82fc67e1959085a8f4b", "program": "B", "station_runtimes": {"2": 19}}}
+{"at": "2026-09-08T18:12:52.080381+00:00", "event": "PASS backup persisted and verified status", "status": "verified"}
+{"at": "2026-09-08T18:13:27.083610+00:00", "event": "PASS original programs restored"}
+{"at": "2026-09-08T18:13:38.088758+00:00", "event": "PASS integration reload and fresh controller read"}
+{"at": "2026-09-08T18:13:38.097532+00:00", "event": "HA stopped"}

@@ -1,0 +1,26 @@
+INFO:homeassistant.loader:Loaded hunter_node_bt from custom_components.hunter_node_bt
+WARNING:homeassistant.loader:We found a custom integration hunter_node_bt which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+INFO:homeassistant.bootstrap:Domains to be set up: {'fan', 'conversation', 'motion', 'hunter_node_bt', 'frontend', 'counter', 'button', 'update', 'door', 'network', 'tts', 'input_boolean', 'gate', 'homeassistant', 'script', 'window', 'ai_task', 'application_credentials', 'backup', 'input_button', 'device_tracker', 'lawn_mower', 'climate', 'event', 'siren', 'valve', 'labs', 'water_heater', 'camera', 'logger', 'humidity', 'date', 'brands', 'automation', 'text', 'select', 'radio_frequency', 'schedule', 'vibration', 'geo_location', 'person', 'switch', 'battery', 'number', 'occupancy', 'input_select', 'infrared', 'input_text', 'garage_door', 'binary_sensor', 'datetime', 'air_quality', 'bthome', 'system_health', 'sensor', 'tag', 'lock', 'input_datetime', 'vacuum', 'temperature', 'stt', 'moisture', 'analytics', 'zone', 'illuminance', 'notify', 'hardware', 'input_number', 'timer', 'time', 'power', 'weather', 'wake_word', 'cover', 'remote', 'image', 'assist_satellite', 'light', 'scene', 'humidifier', 'image_processing', 'bluetooth', 'media_player', 'alarm_control_panel', 'http'}
+INFO:homeassistant.bootstrap:Setting up stage 2: {'fan', 'conversation', 'motion', 'hunter_node_bt', 'counter', 'button', 'update', 'door', 'tts', 'input_boolean', 'gate', 'script', 'window', 'ai_task', 'application_credentials', 'backup', 'input_button', 'device_tracker', 'lawn_mower', 'climate', 'event', 'siren', 'valve', 'water_heater', 'camera', 'humidity', 'date', 'brands', 'automation', 'text', 'select', 'radio_frequency', 'schedule', 'vibration', 'geo_location', 'person', 'switch', 'battery', 'number', 'occupancy', 'input_select', 'infrared', 'input_text', 'garage_door', 'binary_sensor', 'datetime', 'air_quality', 'bthome', 'system_health', 'sensor', 'tag', 'lock', 'input_datetime', 'vacuum', 'temperature', 'stt', 'moisture', 'analytics', 'zone', 'illuminance', 'notify', 'hardware', 'input_number', 'timer', 'time', 'power', 'weather', 'wake_word', 'cover', 'remote', 'image', 'assist_satellite', 'light', 'scene', 'humidifier', 'image_processing', 'media_player', 'alarm_control_panel'}; already set up: {'bluetooth', 'logger', 'homeassistant', 'labs', 'network', 'frontend', 'http'}
+INFO:homeassistant.setup:Setting up hunter_node_bt
+INFO:homeassistant.setup:Setup of domain hunter_node_bt took 0.00 seconds
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-53) (failures=0) (in_progress=0) (slots=5/5 free) (score=-53.0)
+INFO:homeassistant.components.valve:Setting up hunter_node_bt.valve
+INFO:homeassistant.components.sensor:Setting up hunter_node_bt.sensor
+INFO:homeassistant.components.button:Setting up hunter_node_bt.button
+INFO:homeassistant.components.number:Setting up hunter_node_bt.number
+INFO:homeassistant.components.time:Setting up hunter_node_bt.time
+INFO:homeassistant.components.switch:Setting up hunter_node_bt.switch
+INFO:homeassistant.components.text:Setting up hunter_node_bt.text
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-56) (failures=0) (in_progress=0) (slots=5/5 free) (score=-56.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-59) (failures=0) (in_progress=0) (slots=5/5 free) (score=-59.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-58) (failures=0) (in_progress=0) (slots=5/5 free) (score=-58.0)
+INFO:homeassistant.components.valve:Setting up hunter_node_bt.valve
+INFO:homeassistant.components.sensor:Setting up hunter_node_bt.sensor
+INFO:homeassistant.components.button:Setting up hunter_node_bt.button
+INFO:homeassistant.components.number:Setting up hunter_node_bt.number
+INFO:homeassistant.components.time:Setting up hunter_node_bt.time
+INFO:homeassistant.components.switch:Setting up hunter_node_bt.switch
+INFO:homeassistant.components.text:Setting up hunter_node_bt.text
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)

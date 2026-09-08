@@ -1,0 +1,74 @@
+[
+  {
+    "letter": "A",
+    "name": "Program A",
+    "schedule_type": 0,
+    "schedule_days": 127,
+    "interval_day_count": 0,
+    "interval_day_next": 0,
+    "start_times": [
+      810,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "runtimes": [
+      180,
+      60,
+      0,
+      0
+    ]
+  },
+  {
+    "letter": "B",
+    "name": "Program B",
+    "schedule_type": 0,
+    "schedule_days": 127,
+    "interval_day_count": 0,
+    "interval_day_next": 0,
+    "start_times": [
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "runtimes": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "letter": "C",
+    "name": "Program C",
+    "schedule_type": 0,
+    "schedule_days": 127,
+    "interval_day_count": 0,
+    "interval_day_next": 0,
+    "start_times": [
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "runtimes": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+]

@@ -1,0 +1,109 @@
+INFO:homeassistant.loader:Loaded hunter_node_bt from custom_components.hunter_node_bt
+WARNING:homeassistant.loader:We found a custom integration hunter_node_bt which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-58) (failures=0) (in_progress=0) (slots=5/5 free) (score=-58.0)
+INFO:homeassistant.setup:Setting up hunter_node_bt
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-53) (failures=0) (in_progress=0) (slots=5/5 free) (score=-53.0)
+INFO:homeassistant.components.valve:Setting up hunter_node_bt.valve
+INFO:homeassistant.helpers.entity_registry:Registered new valve.hunter_node_bt entity: valve.node_bt_707796_pots
+INFO:homeassistant.helpers.entity_registry:Registered new valve.hunter_node_bt entity: valve.node_bt_707796_grass
+INFO:homeassistant.components.sensor:Setting up hunter_node_bt.sensor
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_battery
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_moisture
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_controller_state
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_daily_run_time
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_program_a_schedule
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_program_b_schedule
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_program_c_schedule
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_program_write_status
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_configuration_last_read
+INFO:homeassistant.helpers.entity_registry:Registered new sensor.hunter_node_bt entity: sensor.node_bt_707796_program_write_last_verified
+INFO:homeassistant.components.button:Setting up hunter_node_bt.button
+INFO:homeassistant.helpers.entity_registry:Registered new button.hunter_node_bt entity: button.node_bt_707796_stop_all_watering
+INFO:homeassistant.components.number:Setting up hunter_node_bt.number
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_a_station_1_runtime
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_a_station_2_runtime
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_b_station_1_runtime
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_b_station_2_runtime
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_c_station_1_runtime
+INFO:homeassistant.helpers.entity_registry:Registered new number.hunter_node_bt entity: number.node_bt_707796_program_c_station_2_runtime
+INFO:homeassistant.components.time:Setting up hunter_node_bt.time
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_1
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_2
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_3
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_4
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_5
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_6
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_7
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_a_start_8
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_1
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_2
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_3
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_4
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_5
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_6
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_7
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_b_start_8
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_1
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_2
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_3
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_4
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_5
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_6
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_7
+INFO:homeassistant.helpers.entity_registry:Registered new time.hunter_node_bt entity: time.node_bt_707796_program_c_start_8
+INFO:homeassistant.components.switch:Setting up hunter_node_bt.switch
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_monday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_tuesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_wednesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_thursday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_friday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_saturday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_a_sunday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_monday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_tuesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_wednesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_thursday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_friday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_saturday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_b_sunday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_monday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_tuesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_wednesday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_thursday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_friday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_saturday
+INFO:homeassistant.helpers.entity_registry:Registered new switch.hunter_node_bt entity: switch.node_bt_707796_program_c_sunday
+INFO:homeassistant.components.text:Setting up hunter_node_bt.text
+INFO:homeassistant.helpers.entity_registry:Registered new text.hunter_node_bt entity: text.node_bt_707796_program_a_name
+INFO:homeassistant.helpers.entity_registry:Registered new text.hunter_node_bt entity: text.node_bt_707796_program_b_name
+INFO:homeassistant.helpers.entity_registry:Registered new text.hunter_node_bt entity: text.node_bt_707796_program_c_name
+INFO:homeassistant.config_entries:Reloading configuration entries because disabled_by changed in entity registry: 01M213DTG86BPMZ19KCFXQJFCE
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-55) (failures=0) (in_progress=0) (slots=5/5 free) (score=-55.0)
+INFO:homeassistant.components.valve:Setting up hunter_node_bt.valve
+INFO:homeassistant.components.sensor:Setting up hunter_node_bt.sensor
+INFO:homeassistant.components.button:Setting up hunter_node_bt.button
+INFO:homeassistant.components.number:Setting up hunter_node_bt.number
+INFO:homeassistant.components.time:Setting up hunter_node_bt.time
+INFO:homeassistant.components.switch:Setting up hunter_node_bt.switch
+INFO:homeassistant.components.text:Setting up hunter_node_bt.text
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-59) (failures=0) (in_progress=0) (slots=5/5 free) (score=-59.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-57) (failures=0) (in_progress=0) (slots=5/5 free) (score=-57.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-57) (failures=0) (in_progress=0) (slots=5/5 free) (score=-57.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-60) (failures=0) (in_progress=0) (slots=5/5 free) (score=-60.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-56) (failures=0) (in_progress=0) (slots=5/5 free) (score=-56.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-56) (failures=0) (in_progress=0) (slots=5/5 free) (score=-56.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-60) (failures=0) (in_progress=0) (slots=5/5 free) (score=-60.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-58) (failures=0) (in_progress=0) (slots=5/5 free) (score=-58.0)
+INFO:habluetooth.wrappers:60:B6:47:FE:F0:D4 - NODE-BT-707796: Found 1 connection path(s), preferred order: hci0 (02:00:00:00:00:01) (RSSI=-54) (failures=0) (in_progress=0) (slots=5/5 free) (score=-54.0)
+INFO:homeassistant.components.valve:Setting up hunter_node_bt.valve
+INFO:homeassistant.components.sensor:Setting up hunter_node_bt.sensor
+INFO:homeassistant.components.button:Setting up hunter_node_bt.button
+INFO:homeassistant.components.number:Setting up hunter_node_bt.number
+INFO:homeassistant.components.time:Setting up hunter_node_bt.time
+INFO:homeassistant.components.switch:Setting up hunter_node_bt.switch
+INFO:homeassistant.components.text:Setting up hunter_node_bt.text

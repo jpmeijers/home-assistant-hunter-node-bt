@@ -1,0 +1,151 @@
+{
+  "Controller": {
+    "Name": "NODE-BT-707796",
+    "Version": "2.2",
+    "VersionLetter": "A",
+    "BLVersion": "1.00",
+    "BTVersion": "1.02",
+    "StationCount": 2,
+    "SerialNumber": 16707796,
+    "CurrentTime": 1788895152,
+    "LogCount": 255,
+    "SeasonAdjust": 100,
+    "SeasonAdjustByMonthEnable": false,
+    "SeasonAdjustByMonth": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ],
+    "StationDelay": 0,
+    "PmvEnabled": false,
+    "ProgrammableDaysOff": 1776643200,
+    "ControllerOff": false,
+    "ClickSensorEnabled": false,
+    "ClickDelaySeconds": 0,
+    "SoilSensorEnabled": false,
+    "SoilTriggerLevel": 100,
+    "SensorBypassEnabled": false,
+    "BatteryChangeDate": 1769644800,
+    "SettingsChangeDate": 1788895148,
+    "ManualRunTime": 1800,
+    "SolarPanelAttached": false
+  },
+  "Sensor": {
+    "Battery": 60,
+    "MoistureSensor": 100,
+    "MoistureADC": 0,
+    "ClickSensorActive": false,
+    "ClickSensorRestore": 1546300806,
+    "ProgrammableOffRestore": 0
+  },
+  "HunterCustom": {
+    "DebugBits": 32768,
+    "FastClock": false,
+    "DBVersion": 11,
+    "Count": 1,
+    "Result": "A"
+  },
+  "Program_A": {
+    "Name": "Program A",
+    "ScheduleType": 0,
+    "ScheduleDays": 127,
+    "IntervalDayCount": 0,
+    "IntervalDayNext": 0,
+    "StartTimes": [
+      810,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "RunTime": [
+      180,
+      60,
+      0,
+      0
+    ]
+  },
+  "Program_B": {
+    "Name": "BLE test",
+    "ScheduleType": 0,
+    "ScheduleDays": 2,
+    "IntervalDayCount": 0,
+    "IntervalDayNext": 0,
+    "StartTimes": [
+      1161,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "RunTime": [
+      30,
+      0,
+      0,
+      0
+    ]
+  },
+  "Program_C": {
+    "Name": "Program C",
+    "ScheduleType": 0,
+    "ScheduleDays": 127,
+    "IntervalDayCount": 0,
+    "IntervalDayNext": 0,
+    "StartTimes": [
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "RunTime": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "Station_1": {
+    "Name": "Pots",
+    "Cycle": 0,
+    "Soak": 0
+  },
+  "Station_2": {
+    "Name": "Grass",
+    "Cycle": 0,
+    "Soak": 0
+  },
+  "Station_3": {
+    "Name": "Station 3",
+    "Cycle": 0,
+    "Soak": 0
+  },
+  "Station_4": {
+    "Name": "Station 4",
+    "Cycle": 0,
+    "Soak": 0
+  },
+  "Manual": {
+    "ProgramLetter": 0,
+    "StationNumber": 0,
+    "RunTime": 0
+  }
+}

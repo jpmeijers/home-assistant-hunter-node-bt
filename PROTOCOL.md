@@ -19,7 +19,9 @@ Summary of evidence:
 - **Confirmed on hardware:** service-filtered discovery, GATT properties, authentication with PIN `0000`, controller and
   state reads, physical control of stations 1 and 2, `StopAll`, and controller-enforced timed shutoff after the BLE
   client disconnects. Schedule reads, partial and complete program writes, program clearing, and the global
-  controller-off flag are also hardware-verified.
+   controller-off flag are also hardware-verified. On 8 September, controller telemetry additionally confirmed a
+   30-second scheduled Program B run while the BLE client was disconnected, followed by idle state and a `LastRun` read.
+   The user also confirmed that water ran on Pots for 30 seconds.
 - **Previously observed elsewhere:** a `NODE-BT-223358` advertisement containing the Nordic UART service UUID (recorded
   by piBeacon).
 
@@ -192,19 +194,19 @@ Important observed fields and units are:
 
 | Path                                                 | Meaning / observed value                                          |
 |------------------------------------------------------|-------------------------------------------------------------------|
-| `Controller.CurrentTime`                             | Unix seconds maintained by the controller                         |
+| `Controller.CurrentTime`                             | Local wall time encoded as seconds since 1970-01-01, without UTC conversion (see clock sync below) |
 | `Controller.StationCount`                            | Physical station count; observed `2`                              |
 | `Controller.SeasonAdjust`                            | Percent; observed `100`                                           |
 | `Controller.SeasonAdjustByMonth`                     | Twelve monthly percentages                                        |
 | `Controller.StationDelay`                            | Seconds between stations                                          |
-| `Controller.ProgrammableDaysOff`                     | Unix timestamp through which automatic watering is suspended      |
-| `Controller.BatteryChangeDate`, `SettingsChangeDate` | Unix timestamps                                                   |
+| `Controller.ProgrammableDaysOff`                     | Suspension expiry at local midnight, using the app's wall-time epoch encoding |
+| `Controller.BatteryChangeDate`, `SettingsChangeDate` | Battery date uses the app's wall-time epoch helper; device-generated settings date needs separate verification |
 | `Controller.ManualRunTime`                           | Default manual runtime in seconds; observed `1800`                |
 | `Sensor.Battery`                                     | Battery percent; observed `60`                                    |
 | `Sensor.MoistureSensor`                              | Moisture percentage; observed `100`                               |
 | `Sensor.MoistureADC`                                 | Raw moisture ADC; observed `0`, absent from the app's typed model |
 | `State.NextWaterTime`                                | Minutes since midnight; observed `810` for 13:30                  |
-| `State.DailyRunTime`                                 | Total scheduled runtime in seconds; observed `240`                |
+| `State.DailyRunTime`                                 | Daily runtime counter in seconds; observed `240`, then `270` after a 30-second run |
 | `State.Station_N.Remaining`                          | Remaining seconds                                                 |
 
 The app-derived `ControllerState` enum is:
@@ -223,10 +225,29 @@ The app-derived station `State` enum is `0` idle, `1` waiting to run, `2`
 suspended, `3` running, `4` soaking, `5` delay, and `6` complete. Only idle state `0` was captured directly because the
 attempted state read during a live manual run hit a transient connection timeout.
 
-`LastRun` is app-derived as `{"StartTime": UNIX_SECONDS, "Station": N,
-"RunTime": SECONDS}`. A dedicated live `LastRun` read was attempted after the main tests, but the controller was no
-longer advertising. Log responses are app-derived as entries with Unix `Time` and an integer `Event` list; the 255-entry
-log was not downloaded.
+`LastRun` was read successfully on 8 September after the offline scheduled test:
+
+```json
+{"StartEvent":2,"StartTime":1788895291,"Station":1,"RunTime":30,"StopEvent":1}
+```
+
+The reply is a top-level object, not wrapped in `LastRun`. In this test `StartEvent: 2` corresponded to Program B and
+`StopEvent: 1` accompanied the completed 30-second run. Other event meanings remain unverified.
+The returned `StartTime` was 31 seconds after the programmed start in the controller's clock encoding, so do not yet
+assume it is the exact start instant: completion-time behavior or scheduling latency needs another timed observation.
+The fixture is in [`captures/schedule_test_2026-09-08/after_scheduled_last_run.json`](captures/schedule_test_2026-09-08/after_scheduled_last_run.json).
+Log responses remain app-derived as entries with a numeric `Time` and an integer `Event` list; the 255-entry log was
+not downloaded.
+
+During this test `Controller.CurrentTime` was approximately host Unix time plus 7,170 seconds (UTC+2 minus about
+30 seconds). Subsequent app analysis confirmed that its clock setter encodes local wall time without UTC conversion
+(see clock sync below), consistent with this observation. No clock write was made. Program start `19:21` was interpreted against that
+controller clock, with the expected real-world run window approximately 19:21:30–19:22:00 SAST.
+Clock-write behavior, interval anchors, suspension expiry, and historical-event interpretation still need device tests.
+
+`DailyRunTime` stayed `240` after uploading the new 30-second program, rose to `270` after it ran, and remained `270`
+after restoring the original schedules. It is therefore not simply the sum of configured scheduled durations. Reset
+timing, manual-run inclusion, and interrupted-run accounting still need testing.
 
 Known log event numbers from the app are: program starts `1`/`2`/`3`, manual start `11`, rain sensor
 active/inactive/enabled/disabled/delay-expired
@@ -304,13 +325,36 @@ Fields can be patched independently. These forms are generated by the app and we
 A complete program object can be written in one transaction. A hardware test changed every Program B field, read all
 values back successfully, then restored the captured Program B object and verified it with another full read.
 
+**8 September follow-up:** do not infer that every complete-object transition is safe from that earlier test. A later
+full-object restoration which simultaneously cleared `StartTimes` and wrote zero `RunTime` values acknowledged success
+but returned two midnight (`0`) starts instead of eight disabled entries. A separate narrow `StartTimes` clear succeeded.
+The integration now rejects requests that include both arrays; edit and verify starts and runtimes separately. The exact
+firmware cause of the combined-write discrepancy is not yet isolated.
+
+Additional behavior observed directly on the same firmware on 8 September:
+
+- Enabled start times are sorted ascending and packed at the beginning of the eight-entry array. Writing positions 1
+  and 8 returned them in positions 1 and 2. Positions are not persistent slot identities.
+- Duplicate enabled times were retained in readback; duplicate execution behavior was not tested. The integration
+  rejects duplicate start times.
+- Twelve-character ASCII program names were retained. Sixteen- and 32-character names were truncated to 14 ASCII
+  characters despite status `0`. The integration conservatively caps new names at 14 UTF-8 bytes; non-ASCII limits
+  were not hardware-tested.
+- Batch and individual station-runtime patches, zeroing runtimes, weekday masks, sorted start edits, and narrow start
+  clearing were exercised. Raw transactions are preserved in
+  [`captures/schedule_test_2026-09-08/transactions.jsonl`](captures/schedule_test_2026-09-08/transactions.jsonl).
+
 There is no per-program enabled boolean. A program is non-runnable if either all eight `StartTimes` entries are `65535`
 or its `RunTime` values sum to zero. The official app clears individual start times from its list and, on save, pads the
 array back to eight entries with `65535`. To clear a whole program while retaining its name and water-day selection,
-write both disabled arrays:
+write and verify the two disabled arrays **in separate transactions**:
 
 ```json
-{"Program_B":{"StartTimes":[65535,65535,65535,65535,65535,65535,65535,65535],"RunTime":[0,0,0,0]}}
+{"Program_B":{"RunTime":[0,0,0,0]}}
+```
+
+```json
+{"Program_B":{"StartTimes":[65535,65535,65535,65535,65535,65535,65535,65535]}}
 ```
 
 All automatic watering can be disabled without altering any program:
@@ -321,7 +365,8 @@ All automatic watering can be disabled without altering any program:
 
 Write `false` to enable it again. Both transitions returned `{"Status":0}` on hardware, and reads confirmed the stored
 values. Temporary suspension uses
-`{"Controller":{"ProgrammableDaysOff":UNIX_TIMESTAMP}}`; the app chooses a local-midnight timestamp up to 99 days ahead.
+`{"Controller":{"ProgrammableDaysOff":LOCAL_EPOCH_SECONDS}}`; the app chooses local midnight up to 99 days ahead,
+encoded without UTC conversion using the helper described below.
 A current or past timestamp removes the effective suspension.
 
 Other confirmed examples include:
@@ -333,12 +378,106 @@ Other confirmed examples include:
 {"Controller":{"StationDelay":30}}
 {"Controller":{"CurrentTime":1788739200}}
 {"Station_1":{"Name":"Front","Cycle":600,"Soak":300}}
-{"Program_A":{"StartTimes":[360],"RunTime":[600,0,0,0]}}
+{"Program_A":{"StartTimes":[360,65535,65535,65535,65535,65535,65535,65535]}}
+{"Program_A":{"RunTime":[600,0,0,0]}}
 ```
 
-Times named `CurrentTime`, `ProgrammableDaysOff`, `BatteryChangeDate`, and
-`SettingsChangeDate` are Unix timestamps. Program start times are minutes from midnight. Program run, station
+Do not interpret every epoch-like number as a UTC Unix timestamp; the app uses different conversions for different
+fields, as detailed below. Program start times are minutes from midnight. Program run, station
 cycle/soak, station delay, sensor delay, and manual run values are seconds.
+
+## Clock synchronization (app-derived and hardware-tested 8 September 2026)
+
+The official Android app writes the phone's **local wall time**, encoded as seconds since a naive
+`1970-01-01 00:00:00`. Despite the helper's name, this is not a standard UTC Unix timestamp.
+
+The normal successful post-connect workflow in `PeripheralViewModel.DoIt` calls:
+
+```csharp
+Commands.SetCurrentDateTime((long)DateTime.Now.ToUnixTimestamp())
+```
+
+This runs after reading configuration, resolving offline edits, and checking firmware updates, when the firmware
+update flow does not take over. There is no drift threshold at this call site. Failure disconnects; success opens
+the dashboard. Factory-reset reconnection also calls this setter, and firmware-update restoration supplies the same
+time expression to `Commands.MainRestoreCommand`.
+
+`NodeV2.Utilities.DateTimeExtensions.ToUnixTimestamp` implements:
+
+```csharp
+return Math.Max(0.0, Math.Floor(dateTime.Subtract(TimeEpoch.UnixEpoch.EpochStart.DateTime).TotalSeconds));
+```
+
+`NodeV2.Services.TimeEpoch.UnixEpoch` is initialized to `1970-01-01 00:00:00 +00:00`.
+Its `.DateTime` property drops the offset, and `DateTime.Subtract(DateTime)` does not normalize time zones.
+Thus `DateTime.Now` contributes the phone's local calendar fields directly. These semantics are documented by
+Microsoft for [DateTimeOffset.DateTime](https://learn.microsoft.com/en-us/dotnet/api/system.datetimeoffset.datetime)
+and [DateTime.Subtract](https://learn.microsoft.com/en-us/dotnet/api/system.datetime.subtract).
+`Commands.SetCurrentDateTime` copies the resulting integer directly into `{"Controller":{"CurrentTime":...}}`.
+The command carries no timezone or UTC-offset field.
+
+For example, at `2026-09-08 19:21:00` in South Africa (`17:21:00Z`), the app sends `1788895260`;
+a true Unix timestamp for that instant is `1788888060`. The difference is 7,200 seconds. Our captured controller
+clock was consistent with this encoding and approximately 30 seconds slow.
+
+Other date fields must be traced individually:
+
+- `SuspendPageViewModel.SaveDaysOffAsync` and the calendar picker pass `SelectedDate.Date.ToUnixTimestamp()`:
+  suspension expiry uses the same wall-time encoding. Battery-date editing also uses this helper.
+- `UnixTimestampToDateTime` adds seconds to the epoch and returns `.DateTime`, preserving the encoded calendar
+  fields without converting to the phone's local timezone.
+- `WaterDaysPageViewModel.SaveWateringMode` instead uses
+  `new DateTimeOffset(SelectedDateUntil).ToUnixTimeSeconds()` for `IntervalDayNext`. This is a timezone-aware Unix
+  conversion, unlike the clock helper; interval scheduling needs separate testing before implementation.
+- This analysis does not establish the exact event represented by `LastRun.StartTime`, log timestamps, or all
+  device-generated date fields. The observed 31-second discrepancy in the scheduled-run report remains unresolved.
+
+Source locations in the recovered assemblies: `NodeV2.ViewModelsMaui.dll` (`PeripheralViewModel`,
+`FactoryResetPageViewModel`, `FirmwareUpdatePageViewModel`, `SuspendPageViewModel`, `WaterDaysPageViewModel`),
+`NodeV2.Service.Interface.dll` (`Commands`), and `NodeV2.Utilities.dll` (`DateTimeExtensions`, `TimeEpoch`).
+The recovered Utilities DLL SHA-256 is `c62458a4bc3b20cbbc6683c15cfb8044279dcc83183ca396b1b2701f0c0e9791`;
+APK identity is recorded above.
+
+The HA integration does not yet synchronize the clock. A future implementation should obtain local time in HA's
+configured timezone (assuming the controller is in that timezone), encode those wall-clock fields at the protocol
+boundary, and retain real UTC timestamps for HA diagnostics. It must not use the host/container timezone implicitly.
+Writing true UTC directly would move this controller's clock two hours behind South African local time. Clock writes
+and readback were subsequently verified as described below. Behavior when a correction crosses a scheduled start
+remains untested. DST transitions and operation
+while HA is unavailable also need consideration for locations that observe DST.
+
+At approximately 20:00 SAST on 8 September, a direct BLE test corrected the controller's clock forward by about
+29 seconds using the app's encoding. The write `{"Controller":{"CurrentTime":1788897634}}` returned `{"Status":0}`.
+Immediate readback was `1788897635`; after disconnecting, waiting 15 seconds, and reconnecting, the clock read
+`1788897657`. Both reads agreed with host local wall time within three seconds at response completion (including
+BLE response latency). All programs, station configuration, and other configuration values were unchanged;
+`SettingsChangeDate` also stayed unchanged. The final controller state was idle and `DailyRunTime` remained `270`.
+This test neither changed schedules nor initiated watering. It verifies a small clock correction away from a
+scheduled start and continued timekeeping across a BLE disconnect, not power-loss persistence or scheduling across
+a clock jump. Captures and the test script are in
+[`captures/clock_test_2026-09-08_180027`](captures/clock_test_2026-09-08_180027/README.md).
+
+## Home Assistant live integration test (8 September 2026)
+
+The integration was run inside the local Home Assistant Core checkout using its Python 3.14.6 environment and a
+temporary configuration. HA's real Bluetooth discovery found the controller through hci0; the Bluetooth confirmation
+flow authenticated it and all seven entity platforms loaded (67 registry entries including disabled entities).
+
+Real HA service calls successfully changed and verified Program B's name, runtimes, start time, and weekday, cleared
+its start through `hunter_node_bt.clear_start_time`, and updated runtimes through `hunter_node_bt.set_program`.
+HA storage contained the prewrite backup, and diagnostics reported a verified write. All original programs were
+restored and verified by fresh reads both before and after integration reload. No watering was initiated in this test.
+
+An initial run exposed a reload race: an old coordinator's in-flight service call and the new coordinator could open
+overlapping BLE sessions, producing authentication errors and a read timeout. Controller sessions now share a lock
+by Bluetooth address for the lifetime of the HA instance, including coordinator reloads. An automated regression
+test covers the overlap. A targeted hardware test also reloaded during an active HA name-write service call: the
+write completed, the new coordinator connected afterward and verified it, and the original programs were restored.
+See the [live reload regression report](captures/ha_test_2026-09-08_181523/README.md).
+All 40 tests pass in the HA environment with no skips.
+
+See [`captures/ha_test_2026-09-08_181012`](captures/ha_test_2026-09-08_181012/README.md) for evidence and limitations.
+ESPHome proxy transport, browser interactions, and end-to-end Smart Irrigation/blueprint execution remain untested.
 
 ## Direct probe
 
@@ -382,12 +521,18 @@ failures.
 - Schedule writes should begin from a fresh `Read All`, patch only intended fields, retain fixed array shapes/sentinels,
   verify `Status == 0`, and read back the result. Keep schedule editing out of the first release unless this
   read-modify-verify behavior is implemented.
+- The integration now implements that program read-modify-verify path, persisted pre-write backups, runtime/start-time/
+  weekday/name controls, and a batch program action. See [SCHEDULES.md](SCHEDULES.md) for supported edits, failure handling,
+  the optional duration-sensor blueprint, and remaining HA end-to-end tests. The 8 September hardware tests verify the
+  supported program edits and autonomous scheduled activation; other app-derived capabilities retain their stated gaps.
 - Redact PINs, Bluetooth addresses, and serial numbers from diagnostics. Never log the PIN challenge response at normal
   logging levels.
 
 ## Completed hardware tests
 
 All tests used the local computer's Bluetooth adapter, Bleak 3.0.2, and the default PIN. The Android phone was not used.
+
+### 7 September
 
 1. Discovered `NODE-BT-707796` by service UUID and enumerated GATT.
 2. Authenticated repeatedly and read controller, state, sensor data through
@@ -405,6 +550,18 @@ All tests used the local computer's Bluetooth adapter, Bleak 3.0.2, and the defa
 The final audit confirmed Program A unchanged, Programs B/C empty, controller enabled, and all stations idle. No
 schedule test caused watering because the test program had no enabled start time when nonzero runtimes were present.
 
+### 8 September
+
+The current integration's program-write implementation passed runtime, name, weekday, start-time, no-op, preservation,
+and validation tests on unused Program B. Hardware differences found during testing led to the 14-byte name limit,
+sorted/compacted start arrays, and rejection of combined runtime/start-array writes described above.
+
+A separate Program B schedule ran Pots for 30 seconds with BLE disconnected throughout the expected start/stop window.
+The user confirmed the physical watering duration; `LastRun` reported station 1, 30 seconds, and idle state followed.
+All programs and station settings were restored and verified against the pre-test backup. Only controller/settings
+timestamps and the daily runtime counter changed as a consequence of time passing, configuration writes, and watering.
+See [the test report](captures/schedule_test_2026-09-08/README.md) for captures and remaining timestamp uncertainties.
+
 ## Known gaps
 
 - Only a two-station NODE-BT running controller firmware `2.2A`, bootloader
@@ -413,7 +570,8 @@ schedule test caused watering because the test program had no enabled start time
   remain untested.
 - Actual live values for non-idle controller/station state enums were not captured; their meanings come from the app.
 - Manual whole-program and run-all commands, scheduled automatic activation, temporary suspension, cycle/soak behavior,
-  master-valve mode, log download, and `LastRun` response were not hardware-tested.
+  master-valve mode, and log download were not covered by the 7 September tests. The 8 September offline scheduled
+  activation and `LastRun` reply are now captured; the other items and precise timestamp semantics remain unverified.
 - ESPHome Bluetooth proxies and Home Assistant connection contention were not tested.
 - Firmware update and factory-reset paths were intentionally left untouched.
 

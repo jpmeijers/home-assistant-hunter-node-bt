@@ -1,0 +1,7 @@
+{"at": "2026-09-08T18:15:33.105780+00:00", "event": "HA started", "evidence": "/home/jpmeijers/PycharmProjects/hunter-node-bt-ha/captures/ha_test_2026-09-08_181523"}
+{"at": "2026-09-08T18:15:33.106326+00:00", "event": "HA discovered controller", "name": "NODE-BT-707796", "source": "02:00:00:00:00:01", "rssi": -56}
+{"at": "2026-09-08T18:15:33.114383+00:00", "event": "Config entry loaded", "state": "ConfigEntryState.LOADED"}
+{"at": "2026-09-08T18:15:44.129383+00:00", "event": "Reloading while name write holds BLE session lock"}
+{"at": "2026-09-08T18:16:08.095819+00:00", "event": "PASS concurrent write and reload; new coordinator read verified name"}
+{"at": "2026-09-08T18:16:31.080581+00:00", "event": "PASS original programs restored after concurrent reload"}
+{"at": "2026-09-08T18:16:31.102542+00:00", "event": "HA stopped"}

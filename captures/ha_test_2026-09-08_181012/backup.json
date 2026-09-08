@@ -1,0 +1,28 @@
+{
+  "B": {
+    "saved_at": "2026-09-08T18:12:46.358189+00:00",
+    "program": {
+      "Name": "HA live test",
+      "ScheduleType": 0,
+      "ScheduleDays": 127,
+      "IntervalDayCount": 0,
+      "IntervalDayNext": 0,
+      "StartTimes": [
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535,
+        65535
+      ],
+      "RunTime": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

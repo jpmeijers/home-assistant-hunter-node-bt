@@ -1,0 +1,961 @@
+[
+  {
+    "entity_id": "valve.node_bt_707796_pots",
+    "unique_id": "16707796_station_1",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "valve.node_bt_707796_pots",
+      "state": "closed",
+      "attributes": {
+        "is_closed": true,
+        "remaining_seconds": 0,
+        "device_class": "water",
+        "friendly_name": "NODE-BT-707796 Pots",
+        "supported_features": 3
+      },
+      "last_changed": "2026-09-08T18:15:33.090771+00:00",
+      "last_reported": "2026-09-08T18:15:33.090771+00:00",
+      "last_updated": "2026-09-08T18:15:33.090771+00:00",
+      "context": {
+        "id": "01M213Q0F2BK304GZSHTA0BSHJ",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "valve.node_bt_707796_grass",
+    "unique_id": "16707796_station_2",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "valve.node_bt_707796_grass",
+      "state": "closed",
+      "attributes": {
+        "is_closed": true,
+        "remaining_seconds": 0,
+        "device_class": "water",
+        "friendly_name": "NODE-BT-707796 Grass",
+        "supported_features": 3
+      },
+      "last_changed": "2026-09-08T18:15:33.090920+00:00",
+      "last_reported": "2026-09-08T18:15:33.090920+00:00",
+      "last_updated": "2026-09-08T18:15:33.090920+00:00",
+      "context": {
+        "id": "01M213Q0F24N31T664KNAAXTS5",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_battery",
+    "unique_id": "16707796_battery",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_battery",
+      "state": "60",
+      "attributes": {
+        "state_class": "measurement",
+        "unit_of_measurement": "%",
+        "device_class": "battery",
+        "friendly_name": "NODE-BT-707796 Battery"
+      },
+      "last_changed": "2026-09-08T18:15:33.091347+00:00",
+      "last_reported": "2026-09-08T18:15:33.091347+00:00",
+      "last_updated": "2026-09-08T18:15:33.091347+00:00",
+      "context": {
+        "id": "01M213Q0F38F8ZD3MM84XT6Y8W",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_moisture",
+    "unique_id": "16707796_moisture",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_moisture",
+      "state": "100",
+      "attributes": {
+        "state_class": "measurement",
+        "unit_of_measurement": "%",
+        "device_class": "moisture",
+        "friendly_name": "NODE-BT-707796 Moisture"
+      },
+      "last_changed": "2026-09-08T18:15:33.091505+00:00",
+      "last_reported": "2026-09-08T18:15:33.091505+00:00",
+      "last_updated": "2026-09-08T18:15:33.091505+00:00",
+      "context": {
+        "id": "01M213Q0F36179RAVVSZY2TYDK",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_controller_state",
+    "unique_id": "16707796_controller_state",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_controller_state",
+      "state": "idle",
+      "attributes": {
+        "options": [
+          "idle",
+          "manual_station",
+          "system_off",
+          "programmable_off",
+          "rain_off",
+          "rain_delay",
+          "soil_off",
+          "program_a",
+          "program_b",
+          "program_c",
+          "manual_all",
+          "manual_program_a",
+          "manual_program_b",
+          "manual_program_c"
+        ],
+        "device_class": "enum",
+        "friendly_name": "NODE-BT-707796 Controller state"
+      },
+      "last_changed": "2026-09-08T18:15:33.091707+00:00",
+      "last_reported": "2026-09-08T18:15:33.091707+00:00",
+      "last_updated": "2026-09-08T18:15:33.091707+00:00",
+      "context": {
+        "id": "01M213Q0F35KCWSR09CF5CYN8K",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_daily_run_time",
+    "unique_id": "16707796_daily_run_time",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_daily_run_time",
+      "state": "270",
+      "attributes": {
+        "unit_of_measurement": "s",
+        "device_class": "duration",
+        "friendly_name": "NODE-BT-707796 Daily run time"
+      },
+      "last_changed": "2026-09-08T18:15:33.091884+00:00",
+      "last_reported": "2026-09-08T18:15:33.091884+00:00",
+      "last_updated": "2026-09-08T18:15:33.091884+00:00",
+      "context": {
+        "id": "01M213Q0F3JWJFDNEG9SA8ES1F",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_program_a_schedule",
+    "unique_id": "16707796_program_a_schedule",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_program_a_schedule",
+      "state": "configured",
+      "attributes": {
+        "options": [
+          "configured",
+          "inactive"
+        ],
+        "program": "A",
+        "program_name": "Program A",
+        "schedule_mode": "weekdays",
+        "weekdays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ],
+        "interval_days": 0,
+        "interval_next_timestamp": 0,
+        "start_times": [
+          "13:30",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "station_runtimes": {
+          "1": 180,
+          "2": 60
+        },
+        "device_class": "enum",
+        "friendly_name": "NODE-BT-707796 Program A schedule"
+      },
+      "last_changed": "2026-09-08T18:15:33.092131+00:00",
+      "last_reported": "2026-09-08T18:15:33.092131+00:00",
+      "last_updated": "2026-09-08T18:15:33.092131+00:00",
+      "context": {
+        "id": "01M213Q0F4RGZDHB7PB0EEXKSH",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_program_b_schedule",
+    "unique_id": "16707796_program_b_schedule",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_program_b_schedule",
+      "state": "inactive",
+      "attributes": {
+        "options": [
+          "configured",
+          "inactive"
+        ],
+        "program": "B",
+        "program_name": "Program B",
+        "schedule_mode": "weekdays",
+        "weekdays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ],
+        "interval_days": 0,
+        "interval_next_timestamp": 0,
+        "start_times": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "station_runtimes": {
+          "1": 0,
+          "2": 0
+        },
+        "device_class": "enum",
+        "friendly_name": "NODE-BT-707796 Program B schedule"
+      },
+      "last_changed": "2026-09-08T18:15:33.092304+00:00",
+      "last_reported": "2026-09-08T18:15:33.092304+00:00",
+      "last_updated": "2026-09-08T18:15:33.092304+00:00",
+      "context": {
+        "id": "01M213Q0F4P7R82BMGY2FFX93Q",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_program_c_schedule",
+    "unique_id": "16707796_program_c_schedule",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_program_c_schedule",
+      "state": "inactive",
+      "attributes": {
+        "options": [
+          "configured",
+          "inactive"
+        ],
+        "program": "C",
+        "program_name": "Program C",
+        "schedule_mode": "weekdays",
+        "weekdays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ],
+        "interval_days": 0,
+        "interval_next_timestamp": 0,
+        "start_times": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "station_runtimes": {
+          "1": 0,
+          "2": 0
+        },
+        "device_class": "enum",
+        "friendly_name": "NODE-BT-707796 Program C schedule"
+      },
+      "last_changed": "2026-09-08T18:15:33.092450+00:00",
+      "last_reported": "2026-09-08T18:15:33.092450+00:00",
+      "last_updated": "2026-09-08T18:15:33.092450+00:00",
+      "context": {
+        "id": "01M213Q0F4T602E1RZSGE6EAA5",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_program_write_status",
+    "unique_id": "16707796_schedule_write_status",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_program_write_status",
+      "state": "not_requested",
+      "attributes": {
+        "options": [
+          "not_requested",
+          "writing",
+          "verified",
+          "unverified",
+          "failed"
+        ],
+        "device_class": "enum",
+        "friendly_name": "NODE-BT-707796 Program write status"
+      },
+      "last_changed": "2026-09-08T18:15:33.092727+00:00",
+      "last_reported": "2026-09-08T18:15:33.092727+00:00",
+      "last_updated": "2026-09-08T18:15:33.092727+00:00",
+      "context": {
+        "id": "01M213Q0F4GWQCNWF0RR9KCWB3",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_configuration_last_read",
+    "unique_id": "16707796_configuration_read_at",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_configuration_last_read",
+      "state": "2026-09-08T18:15:31+00:00",
+      "attributes": {
+        "device_class": "timestamp",
+        "friendly_name": "NODE-BT-707796 Configuration last read"
+      },
+      "last_changed": "2026-09-08T18:15:33.092900+00:00",
+      "last_reported": "2026-09-08T18:15:33.092900+00:00",
+      "last_updated": "2026-09-08T18:15:33.092900+00:00",
+      "context": {
+        "id": "01M213Q0F44JDK4P9FFNGQEAHS",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "sensor.node_bt_707796_program_write_last_verified",
+    "unique_id": "16707796_schedule_write_verified_at",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "sensor.node_bt_707796_program_write_last_verified",
+      "state": "unknown",
+      "attributes": {
+        "device_class": "timestamp",
+        "friendly_name": "NODE-BT-707796 Program write last verified"
+      },
+      "last_changed": "2026-09-08T18:15:33.093053+00:00",
+      "last_reported": "2026-09-08T18:15:33.093053+00:00",
+      "last_updated": "2026-09-08T18:15:33.093053+00:00",
+      "context": {
+        "id": "01M213Q0F5NFC4CC72HJE7NYKH",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "button.node_bt_707796_stop_all_watering",
+    "unique_id": "16707796_stop_all",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "button.node_bt_707796_stop_all_watering",
+      "state": "unknown",
+      "attributes": {
+        "friendly_name": "NODE-BT-707796 Stop all watering"
+      },
+      "last_changed": "2026-09-08T18:15:33.093386+00:00",
+      "last_reported": "2026-09-08T18:15:33.093386+00:00",
+      "last_updated": "2026-09-08T18:15:33.093386+00:00",
+      "context": {
+        "id": "01M213Q0F5C901FST2B5Q7J4RH",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_a_station_1_runtime",
+    "unique_id": "16707796_program_a_station_1_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_a_station_1_runtime",
+      "state": "180",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program A station 1 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.093825+00:00",
+      "last_reported": "2026-09-08T18:15:33.093825+00:00",
+      "last_updated": "2026-09-08T18:15:33.093825+00:00",
+      "context": {
+        "id": "01M213Q0F5ZKRR7F0ZXZ9EQ6AA",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_a_station_2_runtime",
+    "unique_id": "16707796_program_a_station_2_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_a_station_2_runtime",
+      "state": "60",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program A station 2 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.093972+00:00",
+      "last_reported": "2026-09-08T18:15:33.093972+00:00",
+      "last_updated": "2026-09-08T18:15:33.093972+00:00",
+      "context": {
+        "id": "01M213Q0F593AJBX9XE3KPFN16",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_b_station_1_runtime",
+    "unique_id": "16707796_program_b_station_1_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_b_station_1_runtime",
+      "state": "0",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program B station 1 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.094133+00:00",
+      "last_reported": "2026-09-08T18:15:33.094133+00:00",
+      "last_updated": "2026-09-08T18:15:33.094133+00:00",
+      "context": {
+        "id": "01M213Q0F6MH0775VQYX99PWJJ",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_b_station_2_runtime",
+    "unique_id": "16707796_program_b_station_2_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_b_station_2_runtime",
+      "state": "0",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program B station 2 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.094280+00:00",
+      "last_reported": "2026-09-08T18:15:33.094280+00:00",
+      "last_updated": "2026-09-08T18:15:33.094280+00:00",
+      "context": {
+        "id": "01M213Q0F6NZ1452K02P99TZM6",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_c_station_1_runtime",
+    "unique_id": "16707796_program_c_station_1_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_c_station_1_runtime",
+      "state": "0",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program C station 1 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.094409+00:00",
+      "last_reported": "2026-09-08T18:15:33.094409+00:00",
+      "last_updated": "2026-09-08T18:15:33.094409+00:00",
+      "context": {
+        "id": "01M213Q0F6QGEE4YS937AK42SQ",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "number.node_bt_707796_program_c_station_2_runtime",
+    "unique_id": "16707796_program_c_station_2_runtime",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "number.node_bt_707796_program_c_station_2_runtime",
+      "state": "0",
+      "attributes": {
+        "min": 0,
+        "max": 3600,
+        "step": 1,
+        "mode": "box",
+        "unit_of_measurement": "s",
+        "friendly_name": "NODE-BT-707796 Program C station 2 runtime"
+      },
+      "last_changed": "2026-09-08T18:15:33.094617+00:00",
+      "last_reported": "2026-09-08T18:15:33.094617+00:00",
+      "last_updated": "2026-09-08T18:15:33.094617+00:00",
+      "context": {
+        "id": "01M213Q0F6GKN7H002H61WK7ZH",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_1",
+    "unique_id": "16707796_program_a_start_1",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "time.node_bt_707796_program_a_start_1",
+      "state": "13:30:00",
+      "attributes": {
+        "enabled": true,
+        "program": "A",
+        "slot": 1,
+        "friendly_name": "NODE-BT-707796 Program A start 1"
+      },
+      "last_changed": "2026-09-08T18:15:33.095057+00:00",
+      "last_reported": "2026-09-08T18:15:33.095057+00:00",
+      "last_updated": "2026-09-08T18:15:33.095057+00:00",
+      "context": {
+        "id": "01M213Q0F77V0K15DTGJS16CJ0",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_2",
+    "unique_id": "16707796_program_a_start_2",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_3",
+    "unique_id": "16707796_program_a_start_3",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_4",
+    "unique_id": "16707796_program_a_start_4",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_5",
+    "unique_id": "16707796_program_a_start_5",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_6",
+    "unique_id": "16707796_program_a_start_6",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_7",
+    "unique_id": "16707796_program_a_start_7",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_a_start_8",
+    "unique_id": "16707796_program_a_start_8",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_1",
+    "unique_id": "16707796_program_b_start_1",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "time.node_bt_707796_program_b_start_1",
+      "state": "unknown",
+      "attributes": {
+        "enabled": false,
+        "program": "B",
+        "slot": 1,
+        "friendly_name": "NODE-BT-707796 Program B start 1"
+      },
+      "last_changed": "2026-09-08T18:15:33.095592+00:00",
+      "last_reported": "2026-09-08T18:15:33.095592+00:00",
+      "last_updated": "2026-09-08T18:15:33.095592+00:00",
+      "context": {
+        "id": "01M213Q0F7WKZZC7XPA83SEYAM",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_2",
+    "unique_id": "16707796_program_b_start_2",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_3",
+    "unique_id": "16707796_program_b_start_3",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_4",
+    "unique_id": "16707796_program_b_start_4",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_5",
+    "unique_id": "16707796_program_b_start_5",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_6",
+    "unique_id": "16707796_program_b_start_6",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_7",
+    "unique_id": "16707796_program_b_start_7",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_b_start_8",
+    "unique_id": "16707796_program_b_start_8",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_1",
+    "unique_id": "16707796_program_c_start_1",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "time.node_bt_707796_program_c_start_1",
+      "state": "unknown",
+      "attributes": {
+        "enabled": false,
+        "program": "C",
+        "slot": 1,
+        "friendly_name": "NODE-BT-707796 Program C start 1"
+      },
+      "last_changed": "2026-09-08T18:15:33.096803+00:00",
+      "last_reported": "2026-09-08T18:15:33.096803+00:00",
+      "last_updated": "2026-09-08T18:15:33.096803+00:00",
+      "context": {
+        "id": "01M213Q0F8FZZ3V2GAT8Z8J4P2",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_2",
+    "unique_id": "16707796_program_c_start_2",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_3",
+    "unique_id": "16707796_program_c_start_3",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_4",
+    "unique_id": "16707796_program_c_start_4",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_5",
+    "unique_id": "16707796_program_c_start_5",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_6",
+    "unique_id": "16707796_program_c_start_6",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_7",
+    "unique_id": "16707796_program_c_start_7",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "time.node_bt_707796_program_c_start_8",
+    "unique_id": "16707796_program_c_start_8",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_monday",
+    "unique_id": "16707796_program_a_mon",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_tuesday",
+    "unique_id": "16707796_program_a_tue",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_wednesday",
+    "unique_id": "16707796_program_a_wed",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_thursday",
+    "unique_id": "16707796_program_a_thu",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_friday",
+    "unique_id": "16707796_program_a_fri",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_saturday",
+    "unique_id": "16707796_program_a_sat",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_a_sunday",
+    "unique_id": "16707796_program_a_sun",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_monday",
+    "unique_id": "16707796_program_b_mon",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "switch.node_bt_707796_program_b_monday",
+      "state": "on",
+      "attributes": {
+        "friendly_name": "NODE-BT-707796 Program B Monday"
+      },
+      "last_changed": "2026-09-08T18:15:33.100120+00:00",
+      "last_reported": "2026-09-08T18:15:33.100120+00:00",
+      "last_updated": "2026-09-08T18:15:33.100120+00:00",
+      "context": {
+        "id": "01M213Q0FCM5E4VGX6GK9GA3A6",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_tuesday",
+    "unique_id": "16707796_program_b_tue",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_wednesday",
+    "unique_id": "16707796_program_b_wed",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_thursday",
+    "unique_id": "16707796_program_b_thu",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_friday",
+    "unique_id": "16707796_program_b_fri",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_saturday",
+    "unique_id": "16707796_program_b_sat",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_b_sunday",
+    "unique_id": "16707796_program_b_sun",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_monday",
+    "unique_id": "16707796_program_c_mon",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_tuesday",
+    "unique_id": "16707796_program_c_tue",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_wednesday",
+    "unique_id": "16707796_program_c_wed",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_thursday",
+    "unique_id": "16707796_program_c_thu",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_friday",
+    "unique_id": "16707796_program_c_fri",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_saturday",
+    "unique_id": "16707796_program_c_sat",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "switch.node_bt_707796_program_c_sunday",
+    "unique_id": "16707796_program_c_sun",
+    "disabled_by": "integration",
+    "state": null
+  },
+  {
+    "entity_id": "text.node_bt_707796_program_a_name",
+    "unique_id": "16707796_program_a_name",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "text.node_bt_707796_program_a_name",
+      "state": "Program A",
+      "attributes": {
+        "mode": "text",
+        "min": 1,
+        "max": 14,
+        "pattern": null,
+        "friendly_name": "NODE-BT-707796 Program A name"
+      },
+      "last_changed": "2026-09-08T18:15:33.102049+00:00",
+      "last_reported": "2026-09-08T18:15:33.102049+00:00",
+      "last_updated": "2026-09-08T18:15:33.102049+00:00",
+      "context": {
+        "id": "01M213Q0FEJDW7W465BD1MV2CH",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "text.node_bt_707796_program_b_name",
+    "unique_id": "16707796_program_b_name",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "text.node_bt_707796_program_b_name",
+      "state": "Program B",
+      "attributes": {
+        "mode": "text",
+        "min": 1,
+        "max": 14,
+        "pattern": null,
+        "friendly_name": "NODE-BT-707796 Program B name"
+      },
+      "last_changed": "2026-09-08T18:15:33.102249+00:00",
+      "last_reported": "2026-09-08T18:15:33.102249+00:00",
+      "last_updated": "2026-09-08T18:15:33.102249+00:00",
+      "context": {
+        "id": "01M213Q0FE1Z22A8611V1FE9Y3",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  },
+  {
+    "entity_id": "text.node_bt_707796_program_c_name",
+    "unique_id": "16707796_program_c_name",
+    "disabled_by": null,
+    "state": {
+      "entity_id": "text.node_bt_707796_program_c_name",
+      "state": "Program C",
+      "attributes": {
+        "mode": "text",
+        "min": 1,
+        "max": 14,
+        "pattern": null,
+        "friendly_name": "NODE-BT-707796 Program C name"
+      },
+      "last_changed": "2026-09-08T18:15:33.102494+00:00",
+      "last_reported": "2026-09-08T18:15:33.102494+00:00",
+      "last_updated": "2026-09-08T18:15:33.102494+00:00",
+      "context": {
+        "id": "01M213Q0FEMPS7BT6F9A4PW8TD",
+        "parent_id": null,
+        "user_id": null
+      }
+    }
+  }
+]
