@@ -1,0 +1,104 @@
+blueprint:
+  name: Hunter NODE-BT - upload daily duration sensors
+  description: >-
+    Copy duration sensors (for example Smart Irrigation) into one controller-stored
+    daily program ahead of its start. This does not start valves or reset moisture
+    buckets. Configure watering accounting separately. The last uploaded durations
+    persist through HA/BLE outages, including zero if explicitly allowed.
+    Requires one daily start, seasonal adjustment 100%, monthly adjustment off,
+    and no other active program watering the mapped stations. These requirements
+    are checked against a fresh controller read. No automatic retries.
+  domain: automation
+  input:
+    controller:
+      name: NODE-BT controller
+      selector:
+        device:
+          integration: hunter_node_bt
+    program:
+      name: Stored program
+      default: A
+      selector:
+        select:
+          options: [A, B, C]
+    duration_sensors:
+      name: Station to duration sensor mapping
+      description: 'Map physical station numbers to sensors in seconds, for example {"1": "sensor.smart_irrigation_pots", "2": "sensor.smart_irrigation_grass"}.'
+      selector:
+        object:
+    upload_time:
+      name: Daily upload time
+      description: Choose a time after weather calculations and well before the controller's watering start. No upload runs automatically at HA startup.
+      default: "02:00:00"
+      selector:
+        time:
+    maximum_age_hours:
+      name: Maximum sensor report age
+      default: 36
+      selector:
+        number:
+          min: 1
+          max: 72
+          unit_of_measurement: h
+          mode: box
+    maximum_duration:
+      name: Maximum duration per station
+      description: Reject the whole update if any duration exceeds this limit; values are never silently capped.
+      default: 1800
+      selector:
+        number:
+          min: 1
+          max: 3600
+          unit_of_measurement: s
+          mode: box
+    allow_zero:
+      name: Allow zero runtimes
+      description: Zero disables that station until another successful update. Leave off if this would be unacceptable during an HA outage.
+      default: false
+      selector:
+        boolean:
+
+mode: single
+triggers:
+  - trigger: time
+    at: !input upload_time
+variables:
+  sources: !input duration_sensors
+  maximum_age: !input maximum_age_hours
+  maximum_duration: !input maximum_duration
+  allow_zero: !input allow_zero
+actions:
+  - variables:
+      runtime_values: >-
+        {%- set ns = namespace(valid=sources is mapping and sources | count > 0, values=[], stations=[]) -%}
+        {%- if ns.valid -%}
+          {%- for station, entity_id in sources.items() -%}
+            {%- if station | string not in ['1', '2', '3', '4'] or station | string in ns.stations or entity_id is not string or not entity_id.startswith('sensor.') -%}
+              {%- set ns.valid = false -%}
+            {%- elif not is_number(states(entity_id)) -%}
+              {%- set ns.valid = false -%}
+            {%- else -%}
+              {%- set value = states(entity_id) | float -%}
+              {%- set age = as_timestamp(now()) - as_timestamp(states[entity_id].last_reported) -%}
+              {%- if state_attr(entity_id, 'unit_of_measurement') not in ['s', 'seconds'] or value < 0 or value > maximum_duration | float or (value == 0 and not allow_zero) or age < 0 or age > (maximum_age | float * 3600) -%}
+                {%- set ns.valid = false -%}
+              {%- else -%}
+                {%- set ns.values = ns.values + [(station | string, value | round(0, 'ceil') | int)] -%}
+                {%- set ns.stations = ns.stations + [station | string] -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {{ dict(ns.values) if ns.valid else {} }}
+  - if:
+      - condition: template
+        value_template: "{{ runtime_values | count == 0 }}"
+    then:
+      - stop: "Duration upload rejected: check sensor mapping, seconds units, report age, zero policy, and runtime limit. Stored schedules have not been changed."
+        error: true
+  - action: hunter_node_bt.set_program
+    data:
+      device_id: !input controller
+      program: !input program
+      station_runtimes: "{{ runtime_values }}"
+      require_daily_single_start: true

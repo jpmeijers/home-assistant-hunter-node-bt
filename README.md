@@ -3,7 +3,7 @@
 This custom integration controls Hunter NODE-BT battery irrigation controllers locally over Bluetooth. It was built
 from the documented and hardware-verified protocol in [PROTOCOL.md](PROTOCOL.md).
 
-The first release provides:
+The integration provides:
 
 - automatic Bluetooth discovery through Home Assistant;
 - support for local Bluetooth adapters and active-connection ESPHome Bluetooth proxies;
@@ -12,10 +12,14 @@ The first release provides:
 - a timed `hunter_node_bt.start_watering` action;
 - a stop-all button;
 - battery, moisture, controller-state, and daily-runtime sensors.
+- stored program A/B/C sensors, per-station runtime numbers, start-time controls, weekday switches, and program names;
+- a verified `hunter_node_bt.set_program` action for editing a program in one BLE session;
+- an optional blueprint for uploading daily duration sensors, including Smart Irrigation outputs.
 
 The controller receives a finite duration with every start command and owns the watering timer. A lost Bluetooth
 connection or Home Assistant restart therefore does not leave Home Assistant responsible for eventually stopping the
-water. Schedule editing is deliberately outside this first release.
+water. Program edits are stored on the controller and continue to apply while HA or Bluetooth is unavailable.
+See [schedule editing and device testing](SCHEDULES.md) before enabling automatic duration uploads.
 
 ## Requirements
 
@@ -87,7 +91,15 @@ is the last value read from the controller rather than a locally calculated coun
   restarting or extending an already-running watering timer.
 - Station state values seen on live hardware are currently limited to idle. Active-state meanings were recovered from
   the official app and should be checked during the next device test.
-- Schedule reads/writes, stored-program execution, temporary suspension, and firmware update are not exposed yet.
+- The schedule library was tested on the controller on 8 September, including a 30-second scheduled run with BLE
+  disconnected and verified restoration. Live HA service dispatch, backup storage, and reload also passed; browser
+  interactions and ESPHome proxy transport remain untested. See
+  [the results and test procedure](SCHEDULES.md#device-test-procedure).
+- The controller sorts and compacts start times. Start-time and runtime edits must use separate actions because a
+  combined-array write produced incorrect start times during hardware testing.
+- Odd/even and interval schedules are displayed and preserved when editing runtimes/start times. Setting `weekdays`
+  explicitly switches a program to weekday mode. Editing odd/even/interval rules, stored-program execution, temporary
+  suspension, seasonal adjustment, and firmware update are not exposed yet.
 
 Development notes, protocol evidence, and the captured response samples are in [INVESTIGATION.md](INVESTIGATION.md),
 [PROTOCOL.md](PROTOCOL.md), and [`captures/`](captures/).
