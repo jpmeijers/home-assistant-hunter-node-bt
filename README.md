@@ -73,9 +73,10 @@ data:
   duration: 300
 ```
 
-Durations are in seconds and must be between 1 and 3600. Home Assistant polls the battery-powered controller every five
-minutes and refreshes after acknowledged commands. Between polls, the remaining-time attribute is the last value read
-from the controller rather than a locally calculated countdown.
+Durations are in seconds and must be between 1 and 3600. To conserve the controller's battery, Home Assistant polls it
+once per hour and refreshes immediately after acknowledged commands. Changes made by a stored schedule, the physical
+buttons, or the Hunter app can therefore take up to an hour to appear. Between refreshes, the remaining-time attribute
+is the last value read from the controller rather than a locally calculated countdown.
 
 ## Troubleshooting and current limits
 
