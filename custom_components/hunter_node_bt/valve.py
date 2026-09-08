@@ -15,6 +15,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import (
     CONF_RUN_TIME,
+    DEFAULT_RUN_TIME,
     MAX_RUN_TIME,
     MIN_RUN_TIME,
     STATION_ACTIVE_STATES,
@@ -66,7 +67,12 @@ class HunterNodeValve(HunterNodeEntity, ValveEntity):
     async def async_open_valve(self, **kwargs: Any) -> None:
         """Run the station for the configured bounded duration."""
         await self.async_start_watering(
-            self.coordinator.config_entry.data[CONF_RUN_TIME]
+            self.coordinator.config_entry.options.get(
+                CONF_RUN_TIME,
+                self.coordinator.config_entry.data.get(
+                    CONF_RUN_TIME, DEFAULT_RUN_TIME
+                ),
+            )
         )
 
     async def async_close_valve(self, **kwargs: Any) -> None:

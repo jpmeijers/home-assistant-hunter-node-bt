@@ -3,18 +3,17 @@
     "step": {
       "user": {
         "title": "Select a Hunter NODE-BT",
+        "description": "Enter the controller PIN. The factory default PIN is 0000.",
         "data": {
           "address": "Controller",
-          "pin": "Four-digit PIN",
-          "run_time": "Default valve run time (seconds)"
+          "pin": "Four-digit PIN (default: 0000)"
         }
       },
       "bluetooth_confirm": {
         "title": "Set up {name}",
-        "description": "Enter the controller PIN and the run time used when a valve is opened without an explicit duration.",
+        "description": "Enter the controller PIN. The factory default PIN is 0000.",
         "data": {
-          "pin": "Four-digit PIN",
-          "run_time": "Default valve run time (seconds)"
+          "pin": "Four-digit PIN (default: 0000)"
         }
       }
     },
@@ -22,12 +21,25 @@
       "cannot_connect": "Failed to connect",
       "invalid_auth": "The PIN was rejected",
       "invalid_pin": "Enter exactly four digits",
-      "invalid_run_time": "Enter a whole number of seconds",
       "unknown": "Unexpected error"
     },
     "abort": {
       "already_configured": "This controller is already configured",
       "no_devices_found": "No connectable Hunter NODE-BT controllers were found"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Manual watering",
+        "description": "Choose the run time used when a station valve is opened without an explicit duration.",
+        "data": {
+          "run_time": "Default valve run time (seconds)"
+        }
+      }
+    },
+    "error": {
+      "invalid_run_time": "Enter a whole number of seconds"
     }
   },
   "entity": {

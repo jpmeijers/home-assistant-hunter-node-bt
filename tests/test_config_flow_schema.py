@@ -18,11 +18,20 @@ class ConfigFlowSchemaTests(unittest.TestCase):
 
         from homeassistant.helpers import config_validation as cv
 
-        from custom_components.hunter_node_bt.config_flow import HunterNodeConfigFlow
+        from custom_components.hunter_node_bt.config_flow import (
+            HunterNodeConfigFlow,
+            HunterNodeOptionsFlow,
+        )
 
         fields = to_field_list(
             HunterNodeConfigFlow._details_schema(),
             custom_serializer=cv.custom_serializer,
         )
 
-        self.assertEqual([field["name"] for field in fields], ["pin", "run_time"])
+        self.assertEqual([field["name"] for field in fields], ["pin"])
+
+        option_fields = to_field_list(
+            HunterNodeOptionsFlow._run_time_schema(600),
+            custom_serializer=cv.custom_serializer,
+        )
+        self.assertEqual([field["name"] for field in option_fields], ["run_time"])

@@ -49,10 +49,12 @@ physical validation.
 2. In Home Assistant, go to **Settings → Devices & services**.
 3. Select the discovered **Hunter NODE-BT** card, or choose **Add integration** and search for **Hunter NODE-BT**.
 4. Enter the PIN as four digits. Use `0000` if no custom PIN was configured.
-5. Choose the default valve run time. Opening a valve with the standard `valve.open_valve` action uses this duration.
 
 Initial setup connects to the controller and reads its identity, station names, and state. If setup cannot connect,
 confirm that the controller is awake, in range, and not connected to the Hunter app.
+
+Opening a valve uses a safe default run time of 600 seconds (10 minutes). To change it, open the integration from
+**Settings → Devices & services**, select **Configure**, enter the new default run time, and save.
 
 ## Use
 

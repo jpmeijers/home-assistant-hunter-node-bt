@@ -16,8 +16,14 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_ADDRESS, UnitOfTime
+from homeassistant.core import callback
 from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
@@ -54,6 +60,14 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         self._discovery: BluetoothServiceInfoBleak | None = None
         self._discovered: dict[str, BluetoothServiceInfoBleak] = {}
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> HunterNodeOptionsFlow:
+        """Return the flow for editable controller options."""
+        return HunterNodeOptionsFlow()
 
     async def async_step_bluetooth(
         self, discovery_info: BluetoothServiceInfoBleak
@@ -133,11 +147,6 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
         if len(pin) != 4 or not pin.isascii() or not pin.isdigit():
             errors[CONF_PIN] = "invalid_pin"
             return self._show_details_form(step_id, user_input, errors)
-        run_time = float(user_input[CONF_RUN_TIME])
-        if not run_time.is_integer():
-            errors[CONF_RUN_TIME] = "invalid_run_time"
-            return self._show_details_form(step_id, user_input, errors)
-
         async def connect() -> BleakClient:
             return await establish_connection(
                 bleak.BleakClient,
@@ -162,7 +171,6 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
                 data={
                     CONF_ADDRESS: discovery.address,
                     CONF_PIN: pin,
-                    CONF_RUN_TIME: int(run_time),
                 },
             )
 
@@ -209,8 +217,43 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(CONF_PIN, default="0000"): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD)
-                ),
-                vol.Required(CONF_RUN_TIME, default=DEFAULT_RUN_TIME): NumberSelector(
+                )
+            }
+        )
+
+
+class HunterNodeOptionsFlow(OptionsFlow):
+    """Edit Hunter NODE-BT behavior after setup."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the default duration used when opening a valve."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            run_time = float(user_input[CONF_RUN_TIME])
+            if run_time.is_integer():
+                return self.async_create_entry(
+                    title="", data={CONF_RUN_TIME: int(run_time)}
+                )
+            errors[CONF_RUN_TIME] = "invalid_run_time"
+
+        current_run_time = self.config_entry.options.get(
+            CONF_RUN_TIME,
+            self.config_entry.data.get(CONF_RUN_TIME, DEFAULT_RUN_TIME),
+        )
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self._run_time_schema(current_run_time),
+            errors=errors,
+        )
+
+    @staticmethod
+    def _run_time_schema(default: int) -> vol.Schema:
+        """Return the serializable default-duration schema."""
+        return vol.Schema(
+            {
+                vol.Required(CONF_RUN_TIME, default=default): NumberSelector(
                     NumberSelectorConfig(
                         min=MIN_RUN_TIME,
                         max=MAX_RUN_TIME,
@@ -218,6 +261,6 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
                         mode=NumberSelectorMode.BOX,
                         unit_of_measurement=UnitOfTime.SECONDS,
                     )
-                ),
+                )
             }
         )
