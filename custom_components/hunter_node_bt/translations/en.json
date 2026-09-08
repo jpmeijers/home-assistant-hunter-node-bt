@@ -21,6 +21,8 @@
     "error": {
       "cannot_connect": "Failed to connect",
       "invalid_auth": "The PIN was rejected",
+      "invalid_pin": "Enter exactly four digits",
+      "invalid_run_time": "Enter a whole number of seconds",
       "unknown": "Unexpected error"
     },
     "abort": {

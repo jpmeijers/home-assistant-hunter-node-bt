@@ -17,7 +17,15 @@ from homeassistant.components.bluetooth import (
     async_discovered_service_info,
 )
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
-from homeassistant.const import CONF_ADDRESS
+from homeassistant.const import CONF_ADDRESS, UnitOfTime
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .const import (
     CONF_PIN,
@@ -36,11 +44,6 @@ from .protocol import (
 
 CONNECT_EXCEPTIONS = (*BLEAK_RETRY_EXCEPTIONS, HunterNodeError)
 _LOGGER = logging.getLogger(__name__)
-
-PIN_SCHEMA = vol.All(str, vol.Match(r"^\d{4}$"))
-RUN_TIME_SCHEMA = vol.All(
-    vol.Coerce(int), vol.Range(min=MIN_RUN_TIME, max=MAX_RUN_TIME)
-)
 
 
 class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -126,7 +129,14 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str],
         step_id: str,
     ) -> ConfigFlowResult:
-        pin = user_input[CONF_PIN]
+        pin = str(user_input[CONF_PIN])
+        if len(pin) != 4 or not pin.isascii() or not pin.isdigit():
+            errors[CONF_PIN] = "invalid_pin"
+            return self._show_details_form(step_id, user_input, errors)
+        run_time = float(user_input[CONF_RUN_TIME])
+        if not run_time.is_integer():
+            errors[CONF_RUN_TIME] = "invalid_run_time"
+            return self._show_details_form(step_id, user_input, errors)
 
         async def connect() -> BleakClient:
             return await establish_connection(
@@ -152,15 +162,28 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
                 data={
                     CONF_ADDRESS: discovery.address,
                     CONF_PIN: pin,
-                    CONF_RUN_TIME: user_input[CONF_RUN_TIME],
+                    CONF_RUN_TIME: int(run_time),
                 },
             )
 
-        schema = self._details_schema()
+        return self._show_details_form(step_id, user_input, errors)
+
+    def _show_details_form(
+        self,
+        step_id: str,
+        user_input: dict[str, Any],
+        errors: dict[str, str],
+    ) -> ConfigFlowResult:
+        """Show a setup form again while preserving submitted values."""
+        schema = self.add_suggested_values_to_schema(
+            self._details_schema(), user_input
+        )
         if step_id == "user":
             schema = vol.Schema(
                 {
-                    vol.Required(CONF_ADDRESS, default=discovery.address): vol.In(
+                    vol.Required(
+                        CONF_ADDRESS, default=user_input[CONF_ADDRESS]
+                    ): vol.In(
                         {
                             item.address: f"{item.name} ({item.address})"
                             for item in self._discovered.values()
@@ -184,7 +207,17 @@ class HunterNodeConfigFlow(ConfigFlow, domain=DOMAIN):
     def _details_schema() -> vol.Schema:
         return vol.Schema(
             {
-                vol.Required(CONF_PIN, default="0000"): PIN_SCHEMA,
-                vol.Required(CONF_RUN_TIME, default=DEFAULT_RUN_TIME): RUN_TIME_SCHEMA,
+                vol.Required(CONF_PIN, default="0000"): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.PASSWORD)
+                ),
+                vol.Required(CONF_RUN_TIME, default=DEFAULT_RUN_TIME): NumberSelector(
+                    NumberSelectorConfig(
+                        min=MIN_RUN_TIME,
+                        max=MAX_RUN_TIME,
+                        step=1,
+                        mode=NumberSelectorMode.BOX,
+                        unit_of_measurement=UnitOfTime.SECONDS,
+                    )
+                ),
             }
         )
