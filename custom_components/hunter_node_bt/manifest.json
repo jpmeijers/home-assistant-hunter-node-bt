@@ -10,9 +10,9 @@
   "codeowners": ["@jpmeijers"],
   "config_flow": true,
   "dependencies": ["bluetooth_adapters"],
-  "documentation": "https://github.com/jpmeijers/hunter-node-bt-ha",
+  "documentation": "https://github.com/jpmeijers/home-assistant-hunter-node-bt",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/jpmeijers/hunter-node-bt-ha/issues",
+  "issue_tracker": "https://github.com/jpmeijers/home-assistant-hunter-node-bt/issues",
   "version": "0.2.1"
 }

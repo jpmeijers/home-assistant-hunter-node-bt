@@ -39,7 +39,7 @@ protocol but still need physical validation.
 ### HACS custom repository
 
 1. In HACS, open **Integrations**, choose the menu, then **Custom repositories**.
-2. Add this repository URL and select the **Integration** category.
+2. Add `https://github.com/jpmeijers/home-assistant-hunter-node-bt` and select the **Integration** category.
 3. Install **Hunter NODE-BT** and restart Home Assistant.
 
 ### Manual installation
