@@ -26,8 +26,9 @@ water. Schedule editing is deliberately outside this first release.
 - The controller's four-digit PIN.
 
 The integration currently has hardware coverage for a two-station NODE-BT with controller firmware `2.2A`, bootloader
-`1.00`, and Bluetooth firmware `1.02`. One- and four-station controllers use the same documented protocol but still need
-physical validation.
+`1.00`, and Bluetooth firmware `1.02`. Home Assistant setup, both station starts, and a stop command were manually
+validated with this controller and a local Bluetooth adapter. One- and four-station controllers use the same documented
+protocol but still need physical validation.
 
 ## Install
 

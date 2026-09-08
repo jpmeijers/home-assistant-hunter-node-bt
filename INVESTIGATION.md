@@ -85,6 +85,17 @@ Still app-derived or untested:
 The controller was left enabled with Program A unchanged, Programs B and C empty, and every station idle. The only
 persistent side effect of the reversible write tests is an advanced `SettingsChangeDate` timestamp.
 
+## Home Assistant validation — 8 September 2026
+
+The custom integration was loaded in Home Assistant `2026.10.0.dev0` with a local Bluetooth adapter. Config-entry setup
+authenticated with the controller, discovered both named stations, and created the two valve entities, four sensor
+entities, and stop-all button without integration errors. Manual starts through Home Assistant successfully operated
+stations 1 and 2, and a stop command stopped watering.
+
+This validates the Home Assistant discovery, setup, entity, coordinator, and command paths against the two-station
+controller. ESPHome Bluetooth proxies, one- and four-station controllers, and the active-state values exposed while a
+station is watering still require separate validation.
+
 ## Initial public research — 5 September 2026
 
 **I couldn’t find a working Home Assistant integration for the Hunter NODE-BT, or a published specification of its
@@ -127,7 +138,7 @@ authentication or command encoding; those came from app analysis and direct
 testing. [piBeacon advertisement definitions](https://github.com/kw123/pibeacon/blob/master/piBeacon.indigoPlugin/Contents/Server%20Plugin/knownBeaconTags.json), [BLE UART reference implementation](https://github.com/nkolban/ESP32_BLE_Arduino/blob/master/examples/BLE_uart/BLE_uart.ino)
 
 The following was the original investigation plan. Its first seven milestones now have an initial implementation to the
-extent described above; deployment and hardware validation of the Home Assistant layer remain.
+extent described above, including deployment and basic hardware validation of the Home Assistant layer.
 
 1. **Establish a reproducible test setup.**
 
