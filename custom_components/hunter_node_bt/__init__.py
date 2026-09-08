@@ -15,10 +15,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     import voluptuous as vol
 
     from homeassistant.components.valve import DOMAIN as VALVE_DOMAIN
-    from homeassistant.const import ATTR_DURATION
     from homeassistant.helpers import config_validation as cv, service
 
-    from .const import DOMAIN, MAX_RUN_TIME
+    from .const import ATTR_DURATION, DOMAIN, MAX_RUN_TIME
 
     service.async_register_platform_entity_service(
         hass,

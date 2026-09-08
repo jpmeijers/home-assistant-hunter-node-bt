@@ -6,6 +6,7 @@ from datetime import timedelta
 
 DOMAIN = "hunter_node_bt"
 
+ATTR_DURATION = "duration"
 CONF_PIN = "pin"
 CONF_RUN_TIME = "run_time"
 
