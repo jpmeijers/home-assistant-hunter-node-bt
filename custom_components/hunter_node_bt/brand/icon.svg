@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Hunter NODE-BT irrigation integration</title>
+  <path fill="#0288d1" d="M128 12C110 44 42 112 42 164a86 86 0 0 0 172 0c0-52-68-120-86-152Z"/>
+  <path fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"
+        d="M124 84v128l40-32-72-64m32-32 40 32-72 64"/>
+</svg>

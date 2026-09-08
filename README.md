@@ -38,9 +38,23 @@ protocol but still need physical validation.
 
 ### HACS custom repository
 
-1. In HACS, open **Integrations**, choose the menu, then **Custom repositories**.
+With [HACS installed and configured](https://www.hacs.xyz/docs/use/), click this button to open
+Hunter NODE-BT in HACS on your Home Assistant instance:
+
+[![Open Hunter NODE-BT in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jpmeijers&repository=home-assistant-hunter-node-bt&category=integration)
+
+Confirm adding the repository if prompted, choose **Download**, and restart Home Assistant. Then follow
+[Configure](#configure) below to add your controller. The button opens the HACS installation flow;
+you still need to confirm the download and restart.
+
+If you prefer to add the custom repository manually:
+
+1. Open HACS, choose the three-dot menu, then **Custom repositories**.
 2. Add `https://github.com/jpmeijers/home-assistant-hunter-node-bt` and select the **Integration** category.
 3. Install **Hunter NODE-BT** and restart Home Assistant.
+
+HACS installs the integration and offers updates from this repository's GitHub releases. The optional
+[daily-runtime blueprint](blueprints/automation/hunter_node_bt/sync_daily_runtimes.yaml) must be imported separately.
 
 ### Manual installation
 
