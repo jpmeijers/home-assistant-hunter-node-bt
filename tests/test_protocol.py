@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from custom_components.hunter_node_bt.const import (
     MESSAGE_REQUEST,
@@ -14,6 +14,8 @@ from custom_components.hunter_node_bt.const import (
 )
 from custom_components.hunter_node_bt.models import HunterNodeData
 from custom_components.hunter_node_bt.protocol import (
+    MAX_RESPONSE_BYTES,
+    HunterNodeProtocolError,
     HunterNodeSession,
     decode_pin_packet,
     encode_json_chunks,
@@ -41,7 +43,7 @@ class FakeClient:
     ) -> None:
         self.writes.append((characteristic, bytes(data), response))
         if characteristic == PIN_CHARACTERISTIC:
-            packet_type, _, random_number, _ = decode_pin_packet(data)
+            packet_type, _, _, _ = decode_pin_packet(data)
             callback = self.callbacks[PIN_CHARACTERISTIC]
             if packet_type == 1:
                 callback(None, bytearray(encode_pin_packet(2, 0x1234)))
@@ -84,6 +86,63 @@ class ProtocolEncodingTests(unittest.TestCase):
 
 
 class ProtocolSessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_pin_flood_is_not_queued_after_expected_packet(self) -> None:
+        class FloodClient(FakeClient):
+            async def write_gatt_char(self, characteristic, data, *, response):
+                await super().write_gatt_char(characteristic, data, response=response)
+                if characteristic == PIN_CHARACTERISTIC:
+                    for _ in range(100):
+                        self.callbacks[PIN_CHARACTERISTIC](None, bytearray(b"noise!"))
+
+        client = FloodClient([])
+        session = HunterNodeSession(client, 0)
+        await session.authenticate()
+        self.assertIsNone(session._pin_future)
+        client.callbacks[PIN_CHARACTERISTIC](None, bytearray(b"x" * 100000))
+        self.assertIsNone(session._pin_future)
+
+    async def test_invalid_pin_length_fails_authentication_promptly(self) -> None:
+        class InvalidClient(FakeClient):
+            async def write_gatt_char(self, characteristic, data, *, response):
+                self.callbacks[PIN_CHARACTERISTIC](None, bytearray(b"x" * 100000))
+
+        session = HunterNodeSession(InvalidClient([]), 0)
+        with self.assertRaisesRegex(HunterNodeProtocolError, "PIN packet length"):
+            await asyncio.wait_for(session.authenticate(), 1)
+        self.assertIsNone(session._pin_future)
+
+    async def test_response_limit_rejects_single_and_fragmented_overflow(self) -> None:
+        for fragments in (
+            [b"x" * (MAX_RESPONSE_BYTES + 1)],
+            [b"x" * (MAX_RESPONSE_BYTES // 2), b"y" * (MAX_RESPONSE_BYTES // 2), b"z"],
+        ):
+            client = FakeClient([])
+            session = HunterNodeSession(client, 0)
+            await session.authenticate()
+            task = asyncio.create_task(session.transact({"Read": "All"}))
+            await asyncio.sleep(0)
+            for fragment in fragments:
+                session._on_message(None, bytearray(fragment))
+            with self.assertRaisesRegex(HunterNodeProtocolError, "size limit"):
+                await asyncio.wait_for(task, 1)
+            self.assertEqual(session._response, bytearray())
+
+    async def test_response_at_limit_and_following_transaction_work(self) -> None:
+        client = FakeClient([])
+        session = HunterNodeSession(client, 0)
+        await session.authenticate()
+        task = asyncio.create_task(session.transact({"Read": "All"}))
+        await asyncio.sleep(0)
+        payload = b'{"x":"' + b'a' * (MAX_RESPONSE_BYTES - 9) + b'"}\0'
+        self.assertEqual(len(payload), MAX_RESPONSE_BYTES)
+        session._on_message(None, bytearray(payload))
+        self.assertEqual(len((await task)["x"]), MAX_RESPONSE_BYTES - 9)
+        # The next transaction gets its own bounded accumulator.
+        task = asyncio.create_task(session.transact({"Read": "All"}))
+        await asyncio.sleep(0)
+        session._on_message(None, bytearray(b'{"ok":true}\0'))
+        self.assertEqual(await task, {"ok": True})
+
     async def test_authenticates_reads_fragmented_samples(self) -> None:
         read_all = json.loads(
             (FIXTURES / "node_bt_707796_read_all_2026-09-07.json").read_text()

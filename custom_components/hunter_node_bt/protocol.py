@@ -29,6 +29,9 @@ from .schedules import (
 
 NotificationCallback = Callable[[object, bytearray], None]
 _LOGGER = logging.getLogger(__name__)
+# Captured Read All responses are a few KiB. Allow ample headroom, but never
+# accumulate an unbounded stream from an untrusted peripheral.
+MAX_RESPONSE_BYTES = 64 * 1024
 
 
 class BleakClientLike(Protocol):
@@ -112,7 +115,7 @@ class HunterNodeSession:
         self._pin = pin
         self._authentication_timeout = authentication_timeout
         self._response_timeout = response_timeout
-        self._pin_packets: asyncio.Queue[bytes] = asyncio.Queue()
+        self._pin_future: asyncio.Future[bytes] | None = None
         self._response_future: asyncio.Future[dict[str, Any]] | None = None
         self._response = bytearray()
         self._last_fragment: bytes | None = None
@@ -122,22 +125,17 @@ class HunterNodeSession:
         """Subscribe to responses and complete the challenge exchange."""
         await self._client.start_notify(PIN_CHARACTERISTIC, self._on_pin)
         await self._client.start_notify(MESSAGE_RESPONSE, self._on_message)
-        await self._client.write_gatt_char(
-            PIN_CHARACTERISTIC, encode_pin_packet(1), response=False
-        )
-        challenge = await self._get_pin_packet()
+        challenge = await self._exchange_pin_packet(encode_pin_packet(1))
         packet_type, result, random_number, _ = decode_pin_packet(challenge)
         if packet_type != 2 or result != 0:
             raise HunterNodeProtocolError(
                 f"unexpected login challenge: type={packet_type}, result={result}"
             )
 
-        await self._client.write_gatt_char(
-            PIN_CHARACTERISTIC,
-            encode_pin_packet(3, random_number, self._pin ^ random_number),
-            response=False,
+        login_result = await self._exchange_pin_packet(
+            encode_pin_packet(3, random_number, self._pin ^ random_number)
         )
-        packet_type, result, _, _ = decode_pin_packet(await self._get_pin_packet())
+        packet_type, result, _, _ = decode_pin_packet(login_result)
         if packet_type != 4:
             raise HunterNodeProtocolError(
                 f"unexpected login result packet: type={packet_type}"
@@ -252,25 +250,45 @@ class HunterNodeSession:
         """Stop every station. The controller treats this as idempotent."""
         _require_success(await self.transact({"Manual": {"StopAll": True}}))
 
-    async def _get_pin_packet(self) -> bytes:
+    async def _exchange_pin_packet(self, packet: bytes) -> bytes:
+        """Accept one notification per exchange, without retaining unsolicited data."""
+        future = self._pin_future = asyncio.get_running_loop().create_future()
         try:
-            return await asyncio.wait_for(
-                self._pin_packets.get(), timeout=self._authentication_timeout
-            )
+            async with asyncio.timeout(self._authentication_timeout):
+                await self._client.write_gatt_char(
+                    PIN_CHARACTERISTIC, packet, response=False
+                )
+                return await future
         except TimeoutError as err:
             raise HunterNodeProtocolError("timed out during authentication") from err
+        finally:
+            self._pin_future = None
+            if not future.done():
+                future.cancel()
+            elif not future.cancelled():
+                future.exception()
 
     def _on_pin(self, _sender: object, data: bytearray) -> None:
-        self._pin_packets.put_nowait(bytes(data))
+        future = self._pin_future
+        if future is None or future.done():
+            return
+        if len(data) != 6:
+            future.set_exception(HunterNodeProtocolError("invalid PIN packet length"))
+            return
+        future.set_result(bytes(data))
 
     def _on_message(self, _sender: object, data: bytearray) -> None:
         future = self._response_future
         if future is None or future.done():
             return
-        fragment = bytes(data)
         now = time.monotonic()
-        if fragment == self._last_fragment and now - self._last_fragment_time < 0.1:
+        if data == self._last_fragment and now - self._last_fragment_time < 0.1:
             return
+        if len(self._response) + len(data) > MAX_RESPONSE_BYTES:
+            self._response.clear()
+            future.set_exception(HunterNodeProtocolError("JSON response exceeds size limit"))
+            return
+        fragment = bytes(data)
         self._last_fragment = fragment
         self._last_fragment_time = now
         self._response.extend(fragment)
@@ -287,7 +305,7 @@ class HunterNodeSession:
             decoded = json.loads(payload.decode("utf-8"))
             if not isinstance(decoded, dict):
                 raise HunterNodeProtocolError("JSON response is not an object")
-        except (UnicodeDecodeError, json.JSONDecodeError, HunterNodeProtocolError):
+        except (UnicodeDecodeError, ValueError, RecursionError, HunterNodeProtocolError):
             future.set_exception(HunterNodeProtocolError("invalid JSON response"))
         else:
             future.set_result(decoded)

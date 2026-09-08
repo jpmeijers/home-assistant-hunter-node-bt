@@ -16,6 +16,7 @@ MESSAGE_REQUEST = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 MESSAGE_RESPONSE = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 PIN_SERVICE = "0ed3e3d3-8cd8-4f29-8fec-a7d3a2c5443e"
 PIN_CHARACTERISTIC = "4c9dbe52-3566-4dfc-a299-4ea1353970e2"
+MAX_RESPONSE_BYTES = 64 * 1024
 
 READ_COMMANDS = {
     "all": {"Read": "All"},
@@ -65,30 +66,41 @@ async def find_controller(timeout: float, address: str | None) -> BLEDevice | No
 
 
 async def authenticate(client: BleakClient, pin: int) -> None:
-    packets: asyncio.Queue[tuple[int, int, int, int]] = asyncio.Queue()
+    pending: asyncio.Future[bytes] | None = None
 
     def on_pin(_sender: object, encrypted: bytearray) -> None:
-        plain = _pin_obfuscate(bytes(encrypted))
-        if len(plain) == 6:
-            packets.put_nowait(struct.unpack("<BBHH", plain))
+        if pending is None or pending.done():
+            return
+        if len(encrypted) != 6:
+            pending.set_exception(ValueError("invalid PIN packet length"))
+        else:
+            pending.set_result(bytes(encrypted))
+
+    async def exchange(packet: bytes) -> tuple[int, int, int, int]:
+        nonlocal pending
+        future = pending = asyncio.get_running_loop().create_future()
+        try:
+            async with asyncio.timeout(15):
+                await client.write_gatt_char(PIN_CHARACTERISTIC, packet, response=False)
+                return struct.unpack("<BBHH", _pin_obfuscate(await future))
+        finally:
+            pending = None
+            if not future.done():
+                future.cancel()
+            elif not future.cancelled():
+                future.exception()
 
     await client.start_notify(PIN_CHARACTERISTIC, on_pin)
-    await client.write_gatt_char(PIN_CHARACTERISTIC, _pin_packet(1), response=False)
-    packet_type, result, random_number, _ = await asyncio.wait_for(
-        packets.get(), timeout=15
-    )
+    packet_type, result, random_number, _ = await exchange(_pin_packet(1))
     if packet_type != 2 or result != 0:
         raise RuntimeError(
             f"unexpected login challenge: type={packet_type}, result={result}"
         )
 
     encrypted_pin = pin ^ random_number
-    await client.write_gatt_char(
-        PIN_CHARACTERISTIC,
-        _pin_packet(3, random_number, encrypted_pin),
-        response=False,
+    packet_type, result, _, _ = await exchange(
+        _pin_packet(3, random_number, encrypted_pin)
     )
-    packet_type, result, _, _ = await asyncio.wait_for(packets.get(), timeout=15)
     if packet_type != 4 or result != 0:
         raise RuntimeError(f"login rejected: type={packet_type}, result={result}")
 
@@ -96,8 +108,17 @@ async def authenticate(client: BleakClient, pin: int) -> None:
 async def transact_json(client: BleakClient, command: object) -> object:
     complete = asyncio.Event()
     response = bytearray()
+    error: ValueError | None = None
 
     def on_message(_sender: object, data: bytearray) -> None:
+        nonlocal error
+        if complete.is_set():
+            return
+        if len(response) + len(data) > MAX_RESPONSE_BYTES:
+            error = ValueError("JSON response exceeds size limit")
+            response.clear()
+            complete.set()
+            return
         response.extend(data)
         if 0 in data:
             complete.set()
@@ -109,6 +130,8 @@ async def transact_json(client: BleakClient, command: object) -> object:
             MESSAGE_REQUEST, body[offset: offset + 20], response=True
         )
     await asyncio.wait_for(complete.wait(), timeout=75)
+    if error is not None:
+        raise error
     payload = bytes(response).split(b"\0", 1)[0]
     return json.loads(payload)
 

@@ -89,6 +89,7 @@ class ScheduleEntityTests(unittest.IsolatedAsyncioTestCase):
                 {"device_id": "device", "program": "A", "station_runtimes": {"1": 120}}
             )
         )
+        call.context.user_id = None
         with patch(
             "custom_components.hunter_node_bt.services.dr.async_get"
         ) as registry:
@@ -102,3 +103,89 @@ class ScheduleEntityTests(unittest.IsolatedAsyncioTestCase):
             entry.state = ConfigEntryState.NOT_LOADED
             with self.assertRaises(ServiceValidationError):
                 await handler(call)
+
+    async def test_service_checks_target_program_permissions_before_writing(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+
+        from homeassistant.auth.permissions.const import POLICY_CONTROL
+        from homeassistant.config_entries import ConfigEntryState
+        from homeassistant.exceptions import Unauthorized, UnknownUser
+
+        from custom_components.hunter_node_bt.services import (
+            async_register_program_service,
+        )
+
+        hass = MagicMock()
+        user = MagicMock()
+        hass.auth.async_get_user = AsyncMock(return_value=user)
+        hass.config_entries.async_get_entry.return_value = SimpleNamespace(
+            domain="hunter_node_bt", state=ConfigEntryState.LOADED,
+            runtime_data=self.coordinator,
+        )
+        device = SimpleNamespace(
+            id="device", config_entries={"entry"},
+            identifiers={("hunter_node_bt", "16707796")},
+        )
+        call = SimpleNamespace(
+            context=MagicMock(user_id="restricted"),
+            data={"device_id": ["device"], "program": "A", "start_times": []},
+        )
+        def entity(domain, suffix, letter="a"):
+            return SimpleNamespace(
+                platform="hunter_node_bt", domain=domain,
+                unique_id=f"16707796_program_{letter}_{suffix}",
+                entity_id=f"{domain}.{letter}_{suffix}",
+            )
+
+        entities = [entity("time", "start_1"), entity("switch", "mon")]
+        with (
+            patch("custom_components.hunter_node_bt.services.dr.async_get") as devices,
+            patch("custom_components.hunter_node_bt.services.er.async_get"),
+            patch("custom_components.hunter_node_bt.services.er.async_entries_for_device") as entries,
+        ):
+            devices.return_value.async_get.return_value = device
+            entries.return_value = entities + [
+                entity("sensor", "schedule"), entity("time", "start_1", "b")
+            ]
+            async_register_program_service(hass)
+            handler = hass.services.async_register.call_args.args[2]
+
+            # Read-only users and users denied just one editing entity cannot write.
+            for allowed in (set(), {"time.a_start_1"}):
+                user.permissions.check_entity.side_effect = (
+                    lambda eid, policy, allowed=allowed: eid in allowed
+                )
+                with self.assertRaises(Unauthorized):
+                    await handler(call)
+                self.coordinator.async_set_program.assert_not_awaited()
+
+            # Unknown users cannot inherit internal-automation privileges.
+            hass.auth.async_get_user.return_value = None
+            with self.assertRaises(UnknownUser):
+                await handler(call)
+            self.coordinator.async_set_program.assert_not_awaited()
+            hass.auth.async_get_user.return_value = user
+
+            # A missing registry target must fail closed, even for a permissive user.
+            entries.return_value = []
+            with self.assertRaises(Unauthorized):
+                await handler(call)
+            self.coordinator.async_set_program.assert_not_awaited()
+
+            # Permissions on B or telemetry aren't needed to edit A.
+            entries.return_value = entities + [entity("time", "start_1", "b")]
+            user.permissions.check_entity.side_effect = (
+                lambda eid, policy: eid in {"time.a_start_1", "switch.a_mon"}
+                and policy == POLICY_CONTROL
+            )
+            await handler(call)
+            self.coordinator.async_set_program.assert_awaited_once_with("A", start_times=[])
+            self.assertEqual(entries.call_args.args[1], "device")
+
+            self.coordinator.async_set_program.reset_mock()
+            hass.auth.async_get_user.reset_mock()
+            call.context.user_id = None
+            await handler(call)
+            hass.auth.async_get_user.assert_not_awaited()
+            self.coordinator.async_set_program.assert_awaited_once()

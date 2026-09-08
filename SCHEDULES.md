@@ -32,6 +32,11 @@ is not advanced on failed writes. A verified no-op does advance it, because the 
 Prefer one batch action to several entity edits when an automation changes multiple values. Select the controller using
 the action's **Controller** field; this action accepts exactly one `device_id` and does not accept area/entity targets.
 
+Calls attributed to a Home Assistant user require control permission for every editing entity (runtime, start time,
+weekday, and name) belonging to the selected program on that controller, including disabled entities. Unknown users
+and targets without registered editing entities are rejected before Bluetooth access. Internal automation calls without
+a user context remain supported. Individual entity actions retain Home Assistant's normal entity permission checks.
+
 ```yaml
 action: hunter_node_bt.set_program
 data:
@@ -188,5 +193,14 @@ Use the project's configured Python interpreter with `-m pip install -r requirem
 `bleak-retry-connector`, in the test environment. The local Python 3.15 environment could not build all Home Assistant
 dependencies because Python development headers were missing. The full suite subsequently passed in the existing
 Home Assistant Core Python 3.14.6 environment: 40 tests, no skips.
+After the security fixes, the suite passed in that environment again: **53 tests, no skips**, including the new
+service authorization regression test. From this project's root, run it with:
+
+```shell
+PYTHONDONTWRITEBYTECODE=1 \
+PYTHONPATH="$PWD:/home/jpmeijers/home-assistant-core" \
+/home/jpmeijers/home-assistant-core/.venv/bin/python -m unittest discover -s tests -t .
+```
+
 Tests cover captured programs, preserved fields, limits, no-op writes, backups, BLE fragmentation, serialization,
 nonzero/malformed statuses, lost acknowledgements/readbacks, and blueprint validation. They never connect to BLE hardware.

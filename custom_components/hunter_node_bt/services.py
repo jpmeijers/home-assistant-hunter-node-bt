@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import voluptuous as vol
+from homeassistant.auth.permissions.const import POLICY_CONTROL
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall, callback
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError, Unauthorized, UnknownUser
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 from .schedules import PROGRAMS, WEEKDAYS
@@ -49,6 +51,30 @@ def async_register_program_service(hass: HomeAssistant) -> None:
             raise ServiceValidationError(
                 "Select exactly one loaded Hunter NODE-BT controller"
             )
+        if call.context.user_id:
+            user = await hass.auth.async_get_user(call.context.user_id)
+            if user is None:
+                raise UnknownUser(context=call.context)
+            # This device action edits a whole program. Require control of all its
+            # editing entities, including disabled entities, on this device only.
+            prefix = (
+                f"{candidates[0].data.serial_number}_program_"
+                f"{call.data['program'].lower()}_"
+            )
+            entities = [
+                entity
+                for entity in er.async_entries_for_device(
+                    er.async_get(hass), device.id
+                )
+                if entity.platform == DOMAIN
+                and entity.domain in {"number", "time", "switch", "text"}
+                and entity.unique_id.startswith(prefix)
+            ]
+            if not entities or any(
+                not user.permissions.check_entity(entity.entity_id, POLICY_CONTROL)
+                for entity in entities
+            ):
+                raise Unauthorized(context=call.context, permission=POLICY_CONTROL)
         changes = {
             key: value
             for key, value in call.data.items()

@@ -11,7 +11,11 @@ import ctypes
 import ctypes.util
 import struct
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
+
+MAX_ASSEMBLY_BYTES = 64 * 1024 * 1024
+MAX_STORE_BYTES = 256 * 1024 * 1024
+MAX_TOTAL_OUTPUT_BYTES = 256 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -25,9 +29,22 @@ class AssemblyDescriptor:
     config_data_size: int
 
 
+def _output_size(data: bytes) -> int:
+    """Validate declared sizes before allocating decompression buffers."""
+    if data.startswith(b"XALZ"):
+        if len(data) < 12:
+            raise ValueError("truncated XALZ header")
+        size = struct.unpack_from("<I", data, 8)[0]
+    else:
+        size = len(data)
+    if not 0 < size <= MAX_ASSEMBLY_BYTES:
+        raise ValueError("assembly exceeds output size limit or is empty")
+    return size
+
+
 def _decompress_xalz(data: bytes) -> bytes:
-    magic, _descriptor_index, output_size = struct.unpack_from("<4sII", data)
-    if magic != b"XALZ":
+    output_size = _output_size(data)
+    if not data.startswith(b"XALZ"):
         return data
 
     library_name = ctypes.util.find_library("lz4")
@@ -56,8 +73,38 @@ def _decompress_xalz(data: bytes) -> bytes:
     return output.raw
 
 
+def _destination(output_dir: Path, name: str) -> Path:
+    """Reject unsafe paths and existing files, including symlinks."""
+    path = Path(name)
+    if (
+        not name
+        or "\0" in name
+        or "\\" in name
+        or path.is_absolute()
+        or PureWindowsPath(name).drive
+        or any(part in {"", ".", ".."} for part in name.split("/"))
+    ):
+        raise ValueError("unsafe assembly name")
+    destination = output_dir / path
+    if not destination.resolve().is_relative_to(output_dir):
+        raise ValueError("assembly destination escapes output directory")
+    current = output_dir
+    for part in path.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError("assembly destination contains a symlink")
+    if destination.exists():
+        raise ValueError("assembly destination already exists")
+    return destination
+
+
 def unpack(store_path: Path, output_dir: Path) -> None:
-    store = store_path.read_bytes()
+    with store_path.open("rb") as source:
+        store = source.read(MAX_STORE_BYTES + 1)
+    if len(store) > MAX_STORE_BYTES:
+        raise ValueError("assembly store exceeds size limit")
+    if len(store) < 20:
+        raise ValueError("truncated assembly store header")
     magic, version, entry_count, index_count, index_size = struct.unpack_from(
         "<4sIIII", store
     )
@@ -68,6 +115,8 @@ def unpack(store_path: Path, output_dir: Path) -> None:
     descriptor_size = struct.calcsize("<7I")
     descriptors_offset = header_size + index_size
     names_offset = descriptors_offset + entry_count * descriptor_size
+    if names_offset > len(store) or not index_count:
+        raise ValueError("invalid assembly store index or descriptors")
     descriptors = [
         AssemblyDescriptor(
             *struct.unpack_from("<7I", store, descriptors_offset + i * descriptor_size)
@@ -78,19 +127,44 @@ def unpack(store_path: Path, output_dir: Path) -> None:
     names: list[str] = []
     cursor = names_offset
     for _ in range(entry_count):
+        if cursor + 4 > len(store):
+            raise ValueError("truncated assembly name length")
         name_size = struct.unpack_from("<I", store, cursor)[0]
         cursor += 4
+        if cursor + name_size > len(store):
+            raise ValueError("truncated assembly name")
         names.append(store[cursor: cursor + name_size].decode("utf-8"))
         cursor += name_size
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = output_dir.resolve()
+    destinations: set[Path] = set()
+    entries: list[tuple[str, AssemblyDescriptor]] = []
+    total_output = 0
+    # Validate every entry before creating any output, including entries after
+    # otherwise valid files in a malicious store.
     for name, descriptor in zip(names, descriptors, strict=True):
+        destination = _destination(output_dir, name)
+        if destination in destinations:
+            raise ValueError("duplicate assembly destination")
+        destinations.add(destination)
+        start = descriptor.data_offset
+        end = start + descriptor.data_size
+        if start < cursor or end > len(store):
+            raise ValueError("assembly data lies outside the store payload")
+        total_output += _output_size(store[start:end])
+        if total_output > MAX_TOTAL_OUTPUT_BYTES:
+            raise ValueError("assemblies exceed total output size limit")
+        entries.append((name, descriptor))
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for name, descriptor in entries:
+        destination = _destination(output_dir, name)
         start = descriptor.data_offset
         end = start + descriptor.data_size
         assembly = _decompress_xalz(store[start:end])
-        destination = output_dir / name
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(assembly)
+        with destination.open("xb") as output:
+            output.write(assembly)
         print(f"{name}: {len(assembly)} bytes")
 
     index_entry_size = index_size // index_count

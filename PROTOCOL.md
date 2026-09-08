@@ -39,6 +39,10 @@ protocol, so Android HCI snoop capture was not needed. `tools/unpack_assembly_st
 assemblies from an XABA Android assembly-store payload; the managed DLLs can then be opened with ILSpy. Ordinary JADX
 output does not contain the main application logic.
 
+The assembly extractor rejects traversal/absolute paths, symlink destinations, and existing output files. Use a fresh
+output directory for each extraction. It validates descriptor bounds and limits stores and total extracted output to
+256 MiB, with a 64 MiB per-assembly output limit.
+
 The analysed base APK has SHA-256
 `748773ccb6aeb61518f279206b6e706ebfbf1377f68154730b68d7b73d982a2d`. Android's signature verifier accepts it; the signer
 certificate SHA-256 is
@@ -146,6 +150,10 @@ The official app drops an identical response fragment repeated within 100 ms and
 fragment starts with `{`. These are defensive behaviors rather than confirmed firmware requirements. An integration
 should accumulate raw bytes until the first NUL, decode UTF-8, parse one JSON object, and reject or log malformed and
 trailing data.
+
+The integration and direct probe cap each response at 64 KiB (including its terminator) and reject overflow. PIN
+authentication retains only one expected six-byte notification per exchange; unsolicited notifications are discarded.
+These are client resource limits, not changes to the device protocol or its PIN security.
 
 Useful read commands are:
 
