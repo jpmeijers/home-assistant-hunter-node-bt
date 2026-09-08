@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Awaitable, Callable
 import json
 import logging
 import struct
 import time
+from collections.abc import Awaitable, Callable
+from copy import deepcopy
 from typing import Any, Protocol
 
 from .const import (
@@ -18,6 +19,13 @@ from .const import (
     PIN_CHARACTERISTIC,
 )
 from .models import HunterNodeData
+from .schedules import (
+    PROGRAMS,
+    HunterNodeProgram,
+    build_program_patch,
+    integer,
+    validate_daily_runtime_sync,
+)
 
 NotificationCallback = Callable[[object, bytearray], None]
 _LOGGER = logging.getLogger(__name__)
@@ -56,6 +64,10 @@ class HunterNodeAmbiguousCommandError(HunterNodeError):
     """A control command may have reached the controller."""
 
 
+class HunterNodeScheduleUnverifiedError(HunterNodeError):
+    """A program write was attempted but its final configuration is unverified."""
+
+
 def transform_pin_packet(packet: bytes) -> bytes:
     """Apply the symmetric PIN packet transform; zero bytes stay zero."""
     return bytes(value ^ 0xAC if value else 0 for value in packet)
@@ -73,9 +85,7 @@ def encode_pin_packet(
 def decode_pin_packet(packet: bytes) -> tuple[int, int, int, int]:
     """Decode and validate a PIN notification."""
     if len(packet) != 6:
-        raise HunterNodeProtocolError(
-            f"PIN packet has {len(packet)} bytes; expected 6"
-        )
+        raise HunterNodeProtocolError(f"PIN packet has {len(packet)} bytes; expected 6")
     return struct.unpack("<BBHH", transform_pin_packet(packet))
 
 
@@ -183,6 +193,61 @@ class HunterNodeSession:
             ) from err
         _require_success(response)
 
+    async def set_program(
+        self,
+        letter: str,
+        changes: dict[str, Any],
+        save_backup: Callable[[str, dict[str, Any]], Awaitable[None]] | None = None,
+    ) -> HunterNodeData:
+        """Read, patch and verify in one session; never retry an uncertain write."""
+        if letter not in PROGRAMS:
+            raise ValueError("program must be A, B or C")
+        before = await self.transact({"Read": "All"})
+        count = integer(
+            before.get("Controller", {}).get("StationCount"), 1, 4, "station count"
+        )
+        key = f"Program_{letter}"
+        raw = before.get(key)
+        HunterNodeProgram.from_raw(letter, raw, count)
+        changes = dict(changes)
+        require_daily = changes.pop("require_daily_single_start", False)
+        if type(require_daily) is not bool:
+            raise ValueError("require_daily_single_start must be a boolean")
+        patch = build_program_patch(raw, count, changes)
+        if require_daily:
+            validate_daily_runtime_sync(before, letter, changes)
+        if not patch:
+            state = await self.transact({"Read": "Section_State"})
+            return HunterNodeData.from_responses(before, state)
+        if save_backup is not None:
+            await save_backup(letter, deepcopy(raw))
+        try:
+            response = await self.transact({key: patch})
+        except Exception as err:
+            raise HunterNodeScheduleUnverifiedError(
+                "program write may have reached the controller; refresh before retrying"
+            ) from err
+        _require_success(response)
+        try:
+            after = await self.transact({"Read": "All"})
+            expected = {**raw, **patch}
+            actual = after.get(key)
+            if (
+                not isinstance(actual, dict)
+                or any(k not in actual for k in expected)
+                or json.dumps({k: actual[k] for k in expected}, sort_keys=True)
+                != json.dumps(expected, sort_keys=True)
+            ):
+                raise HunterNodeProtocolError(
+                    "program readback does not match the requested configuration"
+                )
+            state = await self.transact({"Read": "Section_State"})
+            return HunterNodeData.from_responses(after, state)
+        except Exception as err:
+            raise HunterNodeScheduleUnverifiedError(
+                "program write acknowledged but verification did not complete; refresh before retrying"
+            ) from err
+
     async def stop_all(self) -> None:
         """Stop every station. The controller treats this as idempotent."""
         _require_success(await self.transact({"Manual": {"StopAll": True}}))
@@ -231,10 +296,12 @@ class HunterNodeSession:
 class HunterNodeController:
     """Serialize short-lived sessions for one controller."""
 
-    def __init__(self, connector: ClientConnector, pin: int) -> None:
+    def __init__(
+        self, connector: ClientConnector, pin: int, *, session_lock: asyncio.Lock | None = None
+    ) -> None:
         self._connector = connector
         self._pin = pin
-        self._lock = asyncio.Lock()
+        self._lock = session_lock if session_lock is not None else asyncio.Lock()
 
     async def read_data(self) -> HunterNodeData:
         """Read a complete snapshot in one authenticated session."""
@@ -253,6 +320,19 @@ class HunterNodeController:
         async with self._lock:
             await self._with_session(HunterNodeSession.stop_all)
 
+    async def set_program(
+        self,
+        letter: str,
+        changes: dict[str, Any],
+        save_backup: Callable[[str, dict[str, Any]], Awaitable[None]] | None = None,
+    ) -> HunterNodeData:
+        """Hold the controller lock across fresh read, backup, write and verification."""
+        changes = deepcopy(changes)
+        async with self._lock:
+            return await self._with_session(
+                lambda session: session.set_program(letter, changes, save_backup)
+            )
+
     async def _with_session(
         self, operation: Callable[[HunterNodeSession], Awaitable[Any]]
     ) -> Any:
@@ -270,5 +350,5 @@ class HunterNodeController:
 
 def _require_success(response: dict[str, Any]) -> None:
     status = response.get("Status")
-    if status != 0:
+    if type(status) is not int or status != 0:
         raise HunterNodeProtocolError(f"controller returned status {status!r}")

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any
+
+from .schedules import PROGRAMS, HunterNodeProgram
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,6 +34,8 @@ class HunterNodeData:
     next_water_time: int | None
     daily_run_time: int | None
     stations: tuple[HunterNodeStation, ...]
+    programs: tuple[HunterNodeProgram, ...]
+    configuration_read_at: datetime
 
     @classmethod
     def from_responses(
@@ -77,6 +82,13 @@ class HunterNodeData:
             next_water_time=_optional_int(state.get("NextWaterTime")),
             daily_run_time=_optional_int(state.get("DailyRunTime")),
             stations=tuple(stations),
+            programs=tuple(
+                HunterNodeProgram.from_raw(
+                    letter, read_all.get(f"Program_{letter}"), station_count
+                )
+                for letter in PROGRAMS
+            ),
+            configuration_read_at=datetime.now(timezone.utc),
         )
 
 

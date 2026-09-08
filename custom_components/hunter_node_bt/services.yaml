@@ -13,3 +13,66 @@ start_watering:
           max: 3600
           unit_of_measurement: seconds
           mode: box
+
+set_program:
+  name: Set stored program
+  description: >-
+    Read, patch, and verify a controller-resident program. Omitted fields are preserved.
+    The controller keeps these settings if Home Assistant goes offline.
+  fields:
+    device_id:
+      name: Controller
+      required: true
+      selector:
+        device:
+          integration: hunter_node_bt
+    program:
+      name: Program
+      required: true
+      selector:
+        select:
+          options: [A, B, C]
+    name:
+      name: Program name
+      description: At most 14 UTF-8 bytes; longer names are truncated by the controller.
+      selector:
+        text:
+    station_runtimes:
+      name: Station runtimes
+      description: Mapping of station numbers to integer seconds (0–3600). Zero skips a station. Cannot be combined with start-time edits.
+      example: {"1": 240, "2": 90}
+      selector:
+        object:
+    start_times:
+      name: Start times
+      description: Replaces all slots with sorted HH:MM times; null disables. An empty list clears every start. Cannot be combined with runtime edits.
+      example: ["06:00"]
+      selector:
+        object:
+    start_time_slots:
+      name: Individual start slots
+      description: Map current positions (1–8) to HH:MM or null. The controller sorts and compacts times afterwards. Cannot be combined with start_times or runtime edits.
+      example: {"1": "06:00", "2": null}
+      selector:
+        object:
+    weekdays:
+      name: Watering weekdays
+      description: Switches the program to weekday mode. An empty list selects no watering days.
+      selector:
+        select:
+          multiple: true
+          options: [mon, tue, wed, thu, fri, sat, sun]
+    require_daily_single_start:
+      name: Validate daily duration synchronization
+      description: Only allows runtime edits; requires every day, one start, no overlapping programs for these stations, and 100% seasonal adjustment with monthly adjustment off.
+      default: false
+      selector:
+        boolean:
+
+clear_start_time:
+  name: Clear program start time
+  description: Disables the selected stored start slot. Set its time again to enable it.
+  target:
+    entity:
+      integration: hunter_node_bt
+      domain: time

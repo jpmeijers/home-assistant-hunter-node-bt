@@ -44,11 +44,17 @@
   },
   "entity": {
     "button": {
-      "stop_all": {"name": "Stop all watering"}
+      "stop_all": {
+        "name": "Stop all watering"
+      }
     },
     "sensor": {
-      "battery": {"name": "Battery"},
-      "moisture": {"name": "Moisture"},
+      "battery": {
+        "name": "Battery"
+      },
+      "moisture": {
+        "name": "Moisture"
+      },
       "controller_state": {
         "name": "Controller state",
         "state": {
@@ -68,7 +74,70 @@
           "manual_program_c": "Manual program C"
         }
       },
-      "daily_run_time": {"name": "Daily run time"}
+      "daily_run_time": {
+        "name": "Daily run time"
+      },
+      "program_schedule": {
+        "name": "Program {program} schedule",
+        "state": {
+          "configured": "Configured",
+          "inactive": "Inactive"
+        }
+      },
+      "configuration_read_at": {
+        "name": "Configuration last read"
+      },
+      "schedule_write_verified_at": {
+        "name": "Program write last verified"
+      },
+      "schedule_write_status": {
+        "name": "Program write status",
+        "state": {
+          "not_requested": "Not requested",
+          "writing": "Writing",
+          "verified": "Verified",
+          "unverified": "Unverified",
+          "failed": "Failed"
+        }
+      }
+    },
+    "number": {
+      "program_runtime": {
+        "name": "Program {program} station {station} runtime"
+      }
+    },
+    "time": {
+      "program_start": {
+        "name": "Program {program} start {slot}"
+      }
+    },
+    "text": {
+      "program_name": {
+        "name": "Program {program} name"
+      }
+    },
+    "switch": {
+      "program_mon": {
+        "name": "Program {program} Monday"
+      },
+      "program_tue": {
+        "name": "Program {program} Tuesday"
+      },
+      "program_wed": {
+        "name": "Program {program} Wednesday"
+      },
+      "program_thu": {
+        "name": "Program {program} Thursday"
+      },
+      "program_fri": {
+        "name": "Program {program} Friday"
+      },
+      "program_sat": {
+        "name": "Program {program} Saturday"
+      },
+      "program_sun": {
+        "name": "Program {program} Sunday"
+      }
     }
   },
   "services": {
@@ -81,6 +150,48 @@
           "description": "Number of seconds to water."
         }
       }
+    },
+    "set_program": {
+      "name": "Set stored program",
+      "description": "Read, patch, and verify a controller-resident program. Omitted fields are preserved.",
+      "fields": {
+        "device_id": {
+          "name": "Controller",
+          "description": "Select one loaded Hunter NODE-BT controller."
+        },
+        "program": {
+          "name": "Program",
+          "description": "Stored program A, B, or C."
+        },
+        "name": {
+          "name": "Program name",
+          "description": "A name of 1–14 UTF-8 bytes, without control characters."
+        },
+        "station_runtimes": {
+          "name": "Station runtimes",
+          "description": "Map physical station numbers to integer seconds, 0–3600. Zero skips a station. Edit start times separately."
+        },
+        "start_times": {
+          "name": "Start times",
+          "description": "Replace all slots with sorted HH:MM times or null. Cannot be combined with runtime edits."
+        },
+        "start_time_slots": {
+          "name": "Individual start slots",
+          "description": "Map positions 1–8 to HH:MM or null. Times are sorted and compacted after editing. Cannot be combined with start_times or runtime edits."
+        },
+        "weekdays": {
+          "name": "Watering weekdays",
+          "description": "Select mon through sun; changes the program to weekday mode. An empty list selects no days."
+        },
+        "require_daily_single_start": {
+          "name": "Validate daily duration synchronization",
+          "description": "Requires only runtime edits, one daily start, no overlapping programs for these stations, and seasonal scaling disabled."
+        }
+      }
+    },
+    "clear_start_time": {
+      "name": "Clear program start time",
+      "description": "Disable the selected stored start slot. Set its time again to enable it."
     }
   }
 }

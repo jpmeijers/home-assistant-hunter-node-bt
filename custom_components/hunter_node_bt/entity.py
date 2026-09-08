@@ -8,6 +8,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import HunterNodeCoordinator
+from .schedules import PROGRAMS, HunterNodeProgram
 
 
 class HunterNodeEntity(CoordinatorEntity[HunterNodeCoordinator]):
@@ -31,3 +32,20 @@ class HunterNodeEntity(CoordinatorEntity[HunterNodeCoordinator]):
             name=data.name,
             sw_version=data.firmware_version,
         )
+
+
+class HunterNodeProgramEntity(HunterNodeEntity):
+    """An entity whose values always come from the last controller read."""
+
+    def __init__(
+        self, coordinator: HunterNodeCoordinator, letter: str, key: str
+    ) -> None:
+        super().__init__(coordinator)
+        self.letter = letter
+        self._attr_unique_id = (
+            f"{coordinator.data.serial_number}_program_{letter.lower()}_{key}"
+        )
+
+    @property
+    def program(self) -> HunterNodeProgram:
+        return self.coordinator.data.programs[PROGRAMS.index(self.letter)]

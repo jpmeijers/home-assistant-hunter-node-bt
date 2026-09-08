@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
-from typing import TYPE_CHECKING
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any
 
 import bleak
 from bleak_retry_connector import BLEAK_RETRY_EXCEPTIONS, establish_connection
@@ -15,17 +17,20 @@ from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import CONF_PIN, UPDATE_INTERVAL
+from .const import CONF_PIN, DOMAIN, UPDATE_INTERVAL
 from .models import HunterNodeData
 from .protocol import (
     HunterNodeAmbiguousCommandError,
     HunterNodeController,
     HunterNodeError,
+    HunterNodeScheduleUnverifiedError,
 )
 
-UPDATE_EXCEPTIONS = (*BLEAK_RETRY_EXCEPTIONS, HunterNodeError)
+UPDATE_EXCEPTIONS = (*BLEAK_RETRY_EXCEPTIONS, HunterNodeError, ValueError)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -43,8 +48,19 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
             update_interval=UPDATE_INTERVAL,
         )
         self.address = entry.data[CONF_ADDRESS]
+        self._operation_lock = asyncio.Lock()
+        self.schedule_write_status = "not_requested"
+        self.schedule_write_verified_at: datetime | None = None
+        self._backup_store = Store(
+            hass, 1, f"hunter_node_bt.{entry.entry_id}.program_backup"
+        )
         self.controller = HunterNodeController(
-            self._async_connect, int(entry.data[CONF_PIN])
+            self._async_connect,
+            int(entry.data[CONF_PIN]),
+            # An old service call can still be finishing when an entry reloads.
+            session_lock=hass.data.setdefault(DOMAIN, {}).setdefault(
+                self.address, asyncio.Lock()
+            ),
         )
 
     async def _async_connect(self) -> BleakClient:
@@ -63,10 +79,52 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
 
     async def _async_update_data(self) -> HunterNodeData:
         """Read the controller and live station state."""
-        try:
-            return await self.controller.read_data()
-        except UPDATE_EXCEPTIONS as err:
-            raise UpdateFailed(str(err)) from err
+        async with self._operation_lock:
+            try:
+                return await self.controller.read_data()
+            except UPDATE_EXCEPTIONS as err:
+                raise UpdateFailed(str(err)) from err
+
+    async def _async_save_program_backup(
+        self, letter: str, raw: dict[str, Any]
+    ) -> None:
+        backups = await self._backup_store.async_load() or {}
+        backups[letter] = {
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+            "program": raw,
+        }
+        await self._backup_store.async_save(backups)
+
+    async def async_set_program(self, letter: str, **changes: Any) -> None:
+        """Publish only verified data; retain ambiguous-write status across refreshes."""
+        async with self._operation_lock:
+            self.schedule_write_status = "writing"
+            self.async_update_listeners()
+            try:
+                data = await self.controller.set_program(
+                    letter, changes, self._async_save_program_backup
+                )
+            except HunterNodeScheduleUnverifiedError as err:
+                self.schedule_write_status = "unverified"
+                self.async_set_update_error(UpdateFailed(str(err)))
+                raise HomeAssistantError(str(err)) from err
+            except asyncio.CancelledError:
+                self.schedule_write_status = "unverified"
+                self.async_set_update_error(
+                    UpdateFailed("Program update cancelled; refresh before retrying")
+                )
+                raise
+            except ValueError as err:
+                self.schedule_write_status = "failed"
+                self.async_update_listeners()
+                raise ServiceValidationError(str(err)) from err
+            except Exception as err:
+                self.schedule_write_status = "failed"
+                self.async_set_update_error(UpdateFailed(str(err)))
+                raise HomeAssistantError(str(err)) from err
+            self.schedule_write_status = "verified"
+            self.schedule_write_verified_at = data.configuration_read_at
+            self.async_set_updated_data(data)
 
     async def async_start_station(self, station: int, duration: int) -> None:
         """Start a station, then refresh state if the command was acknowledged."""

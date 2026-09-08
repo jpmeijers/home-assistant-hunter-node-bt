@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, ClassVar
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -20,8 +22,9 @@ from homeassistant.helpers.typing import StateType
 
 from .const import CONTROLLER_STATE_NAMES
 from .coordinator import HunterNodeCoordinator
-from .entity import HunterNodeEntity
+from .entity import HunterNodeEntity, HunterNodeProgramEntity
 from .models import HunterNodeData
+from .schedules import DISABLED_START, PROGRAMS
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -74,6 +77,17 @@ async def async_setup_entry(
     async_add_entities(
         HunterNodeSensor(coordinator, description) for description in SENSORS
     )
+    async_add_entities(
+        HunterNodeProgramSensor(coordinator, letter) for letter in PROGRAMS
+    )
+    async_add_entities(
+        HunterNodeScheduleStatus(coordinator, key)
+        for key in (
+            "schedule_write_status",
+            "configuration_read_at",
+            "schedule_write_verified_at",
+        )
+    )
 
 
 class HunterNodeSensor(HunterNodeEntity, SensorEntity):
@@ -91,3 +105,59 @@ class HunterNodeSensor(HunterNodeEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         return self.entity_description.value_fn(self.coordinator.data)
+
+
+class HunterNodeProgramSensor(HunterNodeProgramEntity, SensorEntity):
+    _attr_translation_key = "program_schedule"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options: ClassVar[list[str]] = ["configured", "inactive"]
+
+    def __init__(self, coordinator: HunterNodeCoordinator, letter: str) -> None:
+        super().__init__(coordinator, letter, "schedule")
+        self._attr_translation_placeholders = {"program": letter}
+
+    @property
+    def native_value(self) -> str:
+        runnable = any(value != DISABLED_START for value in self.program.start_times)
+        runnable = runnable and any(
+            self.program.runtimes[: self.coordinator.data.station_count]
+        )
+        if self.program.schedule_type == 0 and not self.program.schedule_days & 127:
+            runnable = False
+        return "configured" if runnable else "inactive"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return self.program.as_attributes(self.coordinator.data.station_count)
+
+
+class HunterNodeScheduleStatus(HunterNodeEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator: HunterNodeCoordinator, key: str) -> None:
+        super().__init__(coordinator)
+        self.key = key
+        self._attr_unique_id = f"{coordinator.data.serial_number}_{key}"
+        self._attr_translation_key = key
+        if key == "schedule_write_status":
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = [
+                "not_requested",
+                "writing",
+                "verified",
+                "unverified",
+                "failed",
+            ]
+        else:
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def available(self) -> bool:
+        # Diagnostics must remain visible when BLE/readback fails.
+        return True
+
+    @property
+    def native_value(self) -> str | datetime | None:
+        if self.key == "configuration_read_at":
+            return self.coordinator.data.configuration_read_at
+        return getattr(self.coordinator, self.key)
