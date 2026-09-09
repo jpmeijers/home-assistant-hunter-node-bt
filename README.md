@@ -62,6 +62,16 @@ HACS installs the integration and offers updates from this repository's GitHub r
    configuration directory.
 2. Restart Home Assistant.
 
+### Integration icon
+
+Home Assistant 2026.3 and later automatically use the bundled `brand/icon.png` and high-resolution
+`brand/icon@2x.png`. No submission to the central brands repository or additional configuration is required.
+Older Home Assistant versions do not support these local brand images. HACS's own icon display depends on
+its support for local brand images.
+
+The blue sprinkler and teal leaf are independent project artwork, not an official Hunter logo.
+See [artwork source and generation prompt](docs/assets/README.md).
+
 ## Configure
 
 1. Wake the NODE-BT if it is not advertising, and close the Hunter app.
