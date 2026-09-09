@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
@@ -81,9 +82,13 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
         """Read the controller and live station state."""
         async with self._operation_lock:
             try:
-                return await self.controller.read_data()
+                data = await self.controller.read_data()
             except UPDATE_EXCEPTIONS as err:
                 raise UpdateFailed(str(err)) from err
+        service_info = bluetooth.async_last_service_info(
+            self.hass, self.address, connectable=True
+        )
+        return replace(data, rssi=service_info.rssi if service_info else None)
 
     async def _async_save_program_backup(
         self, letter: str, raw: dict[str, Any]

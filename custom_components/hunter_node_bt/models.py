@@ -33,6 +33,7 @@ class HunterNodeData:
     controller_state: int | None
     next_water_time: int | None
     daily_run_time: int | None
+    rssi: int | None
     stations: tuple[HunterNodeStation, ...]
     programs: tuple[HunterNodeProgram, ...]
     configuration_read_at: datetime
@@ -81,6 +82,7 @@ class HunterNodeData:
             controller_state=_optional_int(state.get("ControllerState")),
             next_water_time=_optional_int(state.get("NextWaterTime")),
             daily_run_time=_optional_int(state.get("DailyRunTime")),
+            rssi=None,
             stations=tuple(stations),
             programs=tuple(
                 HunterNodeProgram.from_raw(
@@ -95,7 +97,7 @@ class HunterNodeData:
 def _mapping(container: dict[str, Any], key: str) -> dict[str, Any]:
     value = container.get(key, {})
     if not isinstance(value, dict):
-        raise ValueError(f"{key} is not an object")
+        raise TypeError(f"{key} is not an object")
     return value
 
 

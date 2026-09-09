@@ -52,6 +52,9 @@
       "battery": {
         "name": "Battery"
       },
+      "signal_strength": {
+        "name": "Signal strength"
+      },
       "moisture": {
         "name": "Moisture"
       },

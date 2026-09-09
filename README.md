@@ -11,7 +11,7 @@ The integration provides:
 - one water valve entity per physical station;
 - a timed `hunter_node_bt.start_watering` action;
 - a stop-all button;
-- battery, moisture, controller-state, and daily-runtime sensors.
+- battery, signal-strength, moisture, controller-state, and daily-runtime sensors.
 - stored program A/B/C sensors, per-station runtime numbers, start-time controls, weekday switches, and program names;
 - a verified `hunter_node_bt.set_program` action for editing a program in one BLE session;
 - an optional blueprint for uploading daily duration sensors, including Smart Irrigation outputs.
@@ -74,6 +74,9 @@ confirm that the controller is awake, in range, and not connected to the Hunter 
 
 Opening a valve uses a safe default run time of 600 seconds (10 minutes). To change it, open the integration from
 **Settings → Devices & services**, select **Configure**, enter the new default run time, and save.
+
+The Bluetooth signal-strength sensor is a diagnostic entity disabled by default. To use it, open the device in Home
+Assistant, show disabled entities, and enable **Signal strength**.
 
 ## Use
 

@@ -63,6 +63,19 @@ class ScheduleEntityTests(unittest.IsolatedAsyncioTestCase):
         self.coordinator.data = replace(self.coordinator.data, programs=tuple(programs))
         self.assertFalse(day.available)
 
+    async def test_signal_strength_sensor_is_disabled_by_default(self):
+        from homeassistant.helpers.entity import EntityCategory
+
+        from custom_components.hunter_node_bt.sensor import SENSORS, HunterNodeSensor
+
+        self.coordinator.data = replace(self.coordinator.data, rssi=-71)
+        sensor = HunterNodeSensor(
+            self.coordinator, next(description for description in SENSORS if description.key == "rssi")
+        )
+        self.assertEqual(sensor.native_value, -71)
+        self.assertEqual(sensor.entity_category, EntityCategory.DIAGNOSTIC)
+        self.assertFalse(sensor.entity_registry_enabled_default)
+
     async def test_service_resolves_only_loaded_controller(self):
         from unittest.mock import patch
 
