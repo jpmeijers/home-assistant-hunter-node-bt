@@ -97,7 +97,7 @@ class HunterNodeData:
 def _mapping(container: dict[str, Any], key: str) -> dict[str, Any]:
     value = container.get(key, {})
     if not isinstance(value, dict):
-        raise ValueError(f"{key} is not an object")
+        raise TypeError(f"{key} is not an object")
     return value
 
 
