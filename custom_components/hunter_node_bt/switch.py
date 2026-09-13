@@ -12,6 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeProgramEntity
 from .schedules import PROGRAMS, WEEKDAYS
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -19,10 +20,11 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    async_add_entities(
-        HunterNodeWeekday(entry.runtime_data, letter, day)
+    async_add_entities_when_ready(
+        entry, async_add_entities,
+        lambda: (HunterNodeWeekday(entry.runtime_data, letter, day)
         for letter in PROGRAMS
-        for day in WEEKDAYS
+        for day in WEEKDAYS),
     )
 
 

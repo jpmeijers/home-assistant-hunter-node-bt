@@ -20,15 +20,18 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.device_registry import CONNECTION_BLUETOOTH, DeviceInfo
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from .const import CONTROLLER_STATE_NAMES
+from .const import CONTROLLER_STATE_NAMES, DOMAIN
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeEntity, HunterNodeProgramEntity
 from .models import HunterNodeData
 from .schedules import DISABLED_START, PROGRAMS
+from .setup_helpers import async_add_entities_when_ready
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -88,25 +91,38 @@ async def async_setup_entry(
 ) -> None:
     """Set up controller sensors."""
     coordinator: HunterNodeCoordinator = entry.runtime_data
-    async_add_entities(
+    # Preserve existing serial-based IDs; new entries use the known BLE address.
+    unique_id = next(
         (
-            HunterNodeSignalSensor(coordinator, description)
-            if description.key == "rssi"
-            else HunterNodeSensor(coordinator, description)
+            entity.unique_id
+            for entity in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)
+            if entity.domain == "sensor"
+            and entity.platform == DOMAIN
+            and entity.unique_id.endswith("_rssi")
+        ),
+        f"{coordinator.address}_rssi",
+    )
+    async_add_entities([
+        HunterNodeSignalSensor(
+            coordinator, next(item for item in SENSORS if item.key == "rssi"), unique_id
         )
-        for description in SENSORS
-    )
-    async_add_entities(
-        HunterNodeProgramSensor(coordinator, letter) for letter in PROGRAMS
-    )
-    async_add_entities(
-        HunterNodeScheduleStatus(coordinator, key)
-        for key in (
-            "schedule_write_status",
-            "configuration_read_at",
-            "schedule_write_verified_at",
+    ])
+
+    def controller_sensors():
+        yield from (
+            HunterNodeSensor(coordinator, description)
+            for description in SENSORS if description.key != "rssi"
         )
-    )
+        yield from (HunterNodeProgramSensor(coordinator, letter) for letter in PROGRAMS)
+        yield from (
+            HunterNodeScheduleStatus(coordinator, key)
+            for key in (
+                "schedule_write_status", "configuration_read_at",
+                "schedule_write_verified_at",
+            )
+        )
+
+    async_add_entities_when_ready(entry, async_add_entities, controller_sensors)
 
 
 class HunterNodeSensor(HunterNodeEntity, SensorEntity):
@@ -126,10 +142,32 @@ class HunterNodeSensor(HunterNodeEntity, SensorEntity):
         return self.entity_description.value_fn(self.coordinator.data)
 
 
-class HunterNodeSignalSensor(HunterNodeSensor):
+class HunterNodeSignalSensor(SensorEntity):
     """Last received signal and payload, even when a GATT read fails."""
 
     _attr_force_update = True
+    _attr_has_entity_name = True
+    _attr_should_poll = False
+
+    def __init__(
+        self,
+        coordinator: HunterNodeCoordinator,
+        description: HunterNodeSensorDescription,
+        unique_id: str,
+    ) -> None:
+        self.coordinator = coordinator
+        self.entity_description = description
+        self._attr_unique_id = unique_id
+        # A Bluetooth connection identifies the existing device without a read.
+        self._attr_device_info = DeviceInfo(
+            connections={(CONNECTION_BLUETOOTH, coordinator.address)},
+            manufacturer="Hunter Industries",
+            model="NODE-BT",
+        )
+
+    async def async_update(self) -> None:
+        """An explicit signal refresh also reads only the advertisement cache."""
+        self.coordinator._async_sample_advertisement()
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()

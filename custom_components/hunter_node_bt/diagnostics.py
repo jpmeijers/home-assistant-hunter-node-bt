@@ -15,9 +15,10 @@ async def async_get_config_entry_diagnostics(
 ) -> dict[str, object]:
     """Return protocol and model data without credentials or identifiers."""
     coordinator: HunterNodeCoordinator = entry.runtime_data
-    data = asdict(coordinator.data)
-    data["serial_number"] = "REDACTED"
-    data["name"] = "Hunter NODE-BT"
+    data = asdict(coordinator.data) if coordinator.data is not None else None
+    if data is not None:
+        data["serial_number"] = "REDACTED"
+        data["name"] = "Hunter NODE-BT"
     return {
         "last_update_success": coordinator.last_update_success,
         "advertisement": (

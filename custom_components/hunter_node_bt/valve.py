@@ -23,6 +23,7 @@ from .const import (
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeEntity
 from .models import HunterNodeStation
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -32,9 +33,9 @@ async def async_setup_entry(
 ) -> None:
     """Set up one valve per physical station."""
     coordinator: HunterNodeCoordinator = entry.runtime_data
-    async_add_entities(
-        HunterNodeValve(coordinator, station.number)
-        for station in coordinator.data.stations
+    async_add_entities_when_ready(
+        entry, async_add_entities,
+        lambda: (HunterNodeValve(coordinator, station.number) for station in coordinator.data.stations),
     )
 
 

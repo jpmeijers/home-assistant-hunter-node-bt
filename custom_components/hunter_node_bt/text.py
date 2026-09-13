@@ -10,6 +10,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeProgramEntity
 from .schedules import MAX_PROGRAM_NAME_BYTES, PROGRAMS
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -17,8 +18,9 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    async_add_entities(
-        HunterNodeProgramName(entry.runtime_data, letter) for letter in PROGRAMS
+    async_add_entities_when_ready(
+        entry, async_add_entities,
+        lambda: (HunterNodeProgramName(entry.runtime_data, letter) for letter in PROGRAMS),
     )
 
 

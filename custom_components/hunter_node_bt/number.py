@@ -12,6 +12,7 @@ from .const import MAX_RUN_TIME
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeProgramEntity
 from .schedules import PROGRAMS
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -20,10 +21,11 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities(
-        HunterNodeRuntime(coordinator, letter, station.number)
+    async_add_entities_when_ready(
+        entry, async_add_entities,
+        lambda: (HunterNodeRuntime(coordinator, letter, station.number)
         for letter in PROGRAMS
-        for station in coordinator.data.stations
+        for station in coordinator.data.stations),
     )
 
 

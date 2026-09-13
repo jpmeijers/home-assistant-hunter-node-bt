@@ -88,10 +88,14 @@ Opening a valve uses a safe default run time of 600 seconds (10 minutes). To cha
 The Bluetooth signal-strength sensor is a diagnostic entity disabled by default. To use it, open the device in Home
 Assistant, show disabled entities, and enable **Signal strength**.
 
-Once the integration is loaded, this sensor updates from advertisements independently of the hourly controller read.
+This sensor loads at startup without waiting for a Bluetooth connection and updates from advertisements independently
+of the hourly controller read. Existing signal entity IDs and history are preserved. The first controller read runs in
+the background; if it fails, signal monitoring continues and controller reads retry hourly. Valve, schedule, and other
+controller entities become available after a successful read. Until an advertisement is observed, signal strength is
+unavailable; its `last_seen` attribute identifies cached observations replayed by Home Assistant.
 Payload changes arrive through passive callbacks. Since Home Assistant suppresses RSSI-only callbacks, the integration
 also checks its in-memory advertisement cache once per second, recording each new observation it finds. This cache
-check performs no Bluetooth I/O. Its attributes include `last_seen`, the receiving proxy/adapter (`source`), local name,
+check performs no Bluetooth I/O. Sensor attributes include `last_seen`, the receiving proxy/adapter (`source`), local name,
 connectable route, transmit power (when supplied), service UUIDs, manufacturer/service data as hex, and raw bytes when
 available. It retains the last observation even if a controller read fails or advertising stops; check `last_seen` for
 freshness. An available signal sensor does not mean a valve command can connect successfully.

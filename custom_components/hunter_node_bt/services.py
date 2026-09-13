@@ -45,7 +45,9 @@ def async_register_program_service(hass: HomeAssistant) -> None:
                 and entry.state is ConfigEntryState.LOADED
             ):
                 coordinator = entry.runtime_data
-                if (DOMAIN, coordinator.data.serial_number) in device.identifiers:
+                if coordinator.data is not None and (
+                    DOMAIN, coordinator.data.serial_number
+                ) in device.identifiers:
                     candidates.append(coordinator)
         if len(candidates) != 1:
             raise ServiceValidationError(

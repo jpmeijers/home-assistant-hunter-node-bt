@@ -9,6 +9,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeEntity
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -18,7 +19,9 @@ async def async_setup_entry(
 ) -> None:
     """Set up the stop-all button."""
     coordinator: HunterNodeCoordinator = entry.runtime_data
-    async_add_entities([HunterNodeStopButton(coordinator)])
+    async_add_entities_when_ready(
+        entry, async_add_entities, lambda: [HunterNodeStopButton(coordinator)]
+    )
 
 
 class HunterNodeStopButton(HunterNodeEntity, ButtonEntity):

@@ -51,6 +51,7 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
             update_interval=UPDATE_INTERVAL,
         )
         self.address = entry.data[CONF_ADDRESS]
+        self.last_update_success = False
         self.advertisements = HunterNodeAdvertisements()
         self._operation_lock = asyncio.Lock()
         self.schedule_write_status = "not_requested"

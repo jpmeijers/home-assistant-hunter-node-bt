@@ -12,6 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import HunterNodeCoordinator
 from .entity import HunterNodeProgramEntity
 from .schedules import DISABLED_START, PROGRAMS
+from .setup_helpers import async_add_entities_when_ready
 
 
 async def async_setup_entry(
@@ -19,10 +20,11 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    async_add_entities(
-        HunterNodeStartTime(entry.runtime_data, letter, slot)
+    async_add_entities_when_ready(
+        entry, async_add_entities,
+        lambda: (HunterNodeStartTime(entry.runtime_data, letter, slot)
         for letter in PROGRAMS
-        for slot in range(1, 9)
+        for slot in range(1, 9)),
     )
 
 

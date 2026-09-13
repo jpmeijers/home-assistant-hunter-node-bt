@@ -76,11 +76,14 @@ class ScheduleEntityTests(unittest.IsolatedAsyncioTestCase):
 
         from .test_advertisement import advertisement
 
-        self.coordinator.data = replace(self.coordinator.data, rssi=-71)
+        self.coordinator.data = None
         self.coordinator.advertisements = HunterNodeAdvertisements()
         sensor = HunterNodeSignalSensor(
-            self.coordinator, next(description for description in SENSORS if description.key == "rssi")
+            self.coordinator, next(description for description in SENSORS if description.key == "rssi"),
+            "16707796_rssi",
         )
+        self.assertEqual(sensor.unique_id, "16707796_rssi")
+        self.assertFalse(sensor.should_poll)
         self.assertFalse(sensor.available)
         self.assertIsNone(sensor.native_value)
         self.coordinator.last_update_success = False

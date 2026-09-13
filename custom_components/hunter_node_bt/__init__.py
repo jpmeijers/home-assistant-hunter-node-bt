@@ -51,10 +51,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     from .coordinator import HunterNodeCoordinator
 
     coordinator = HunterNodeCoordinator(hass, entry)
-    await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
     coordinator.async_start_advertisements()
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # Signal monitoring must be usable while the initial GATT read is pending
+    # or failing. ConfigEntry owns and cancels this task on unload/reload.
+    entry.async_create_background_task(
+        hass, coordinator.async_refresh(), "Hunter NODE-BT initial read"
+    )
     return True
 
 
