@@ -89,8 +89,8 @@ The Bluetooth signal-strength sensor is a diagnostic entity disabled by default.
 Assistant, show disabled entities, and enable **Signal strength**.
 
 This sensor loads at startup without waiting for a Bluetooth connection and updates from advertisements independently
-of the hourly controller read. Existing signal entity IDs and history are preserved. The first controller read runs in
-the background; if it fails, signal monitoring continues and controller reads retry hourly. Valve, schedule, and other
+of the five-minute controller read. Existing signal entity IDs and history are preserved. The first controller read runs in
+the background; if it fails, signal monitoring continues and controller reads retry every five minutes. Valve, schedule, and other
 controller entities become available after a successful read. Until an advertisement is observed, signal strength is
 unavailable; its `last_seen` attribute identifies cached observations replayed by Home Assistant.
 Payload changes arrive through passive callbacks. Since Home Assistant suppresses RSSI-only callbacks, the integration
@@ -106,7 +106,7 @@ Home Assistant and proxies can filter or coalesce radio packets, and multiple pa
 combined. This is advertisement history, not a lossless over-the-air capture or a record from every proxy.
 Decoded service/manufacturer fields can be aggregated by Home Assistant; `raw`
 represents the latest packet when supplied. Passive listening does not connect, request a scan response, or postpone the
-hourly poll. Setup, explicit refreshes and control commands still make connections as needed.
+five-minute poll. Setup, explicit refreshes and control commands still make connections as needed.
 
 The frame captured from the tested controller was `0201060f094e4f44452d42542d373037373936`: flags `0x06` (general
 discoverable, BR/EDR unsupported) and complete local name `NODE-BT-707796`. This frame contained no battery, moisture,
@@ -129,8 +129,8 @@ data:
 ```
 
 Durations are in seconds and must be between 1 and 3600. To conserve the controller's battery, Home Assistant polls it
-once per hour and refreshes immediately after acknowledged commands. Changes made by a stored schedule, the physical
-buttons, or the Hunter app can therefore take up to an hour to appear. Between refreshes, the remaining-time attribute
+every five minutes and refreshes immediately after acknowledged commands. Changes made by a stored schedule, the physical
+buttons, or the Hunter app can therefore take up to five minutes to appear. Between refreshes, the remaining-time attribute
 is the last value read from the controller rather than a locally calculated countdown.
 
 ## Troubleshooting and current limits

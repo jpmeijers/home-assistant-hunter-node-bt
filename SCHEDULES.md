@@ -126,7 +126,7 @@ offline fallback. Automatic temporary rain suspension is deferred until its hard
 
 **Water accounting:** the blueprint does not reset Smart Irrigation buckets or claim that a scheduled run happened.
 Configure accounting separately and avoid enabling an additional valve-driving automation for the same program. Until
-NODE-BT run history and its timestamp semantics are validated, hourly polling is insufficient to reliably observe short
+NODE-BT run history and its timestamp semantics are validated, five-minute polling is insufficient to reliably observe short
 runs. A single `LastRun` reply was captured on hardware, but that cannot recover multiple missed runs. This blueprint is an
 advance configuration adapter, not a complete closed-loop Smart Irrigation controller. Smart Irrigation's public
 duration outputs are documented in its [repository](https://github.com/altmenorg/HAsmartirrigation). Irrigation Unlimited
