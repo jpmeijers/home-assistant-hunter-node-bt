@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
 import bleak
@@ -17,11 +17,13 @@ if TYPE_CHECKING:
 from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .advertisement import HunterNodeAdvertisements
 from .const import CONF_PIN, DOMAIN, UPDATE_INTERVAL
 from .models import HunterNodeData
 from .protocol import (
@@ -49,6 +51,7 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
             update_interval=UPDATE_INTERVAL,
         )
         self.address = entry.data[CONF_ADDRESS]
+        self.advertisements = HunterNodeAdvertisements()
         self._operation_lock = asyncio.Lock()
         self.schedule_write_status = "not_requested"
         self.schedule_write_verified_at: datetime | None = None
@@ -63,6 +66,42 @@ class HunterNodeCoordinator(DataUpdateCoordinator[HunterNodeData]):
                 self.address, asyncio.Lock()
             ),
         )
+
+    @callback
+    def async_start_advertisements(self) -> None:
+        """Listen without connecting or changing the controller polling timer."""
+        self.config_entry.async_on_unload(
+            bluetooth.async_register_callback(
+                self.hass,
+                self._async_advertisement,
+                {"address": self.address, "connectable": False},
+                bluetooth.BluetoothScanningMode.PASSIVE,
+            )
+        )
+        # HA suppresses discovery callbacks for RSSI-only changes, but still
+        # updates its advertisement cache. Reading that cache uses no radio I/O.
+        self.config_entry.async_on_unload(
+            async_track_time_interval(
+                self.hass, self._async_sample_advertisement, timedelta(seconds=1)
+            )
+        )
+        self._async_sample_advertisement()
+
+    @callback
+    def _async_sample_advertisement(self, now: datetime | None = None) -> None:
+        service_info = bluetooth.async_last_service_info(
+            self.hass, self.address, connectable=False
+        )
+        if service_info is not None:
+            self.advertisements.async_observe(service_info)
+
+    @callback
+    def _async_advertisement(
+        self,
+        service_info: bluetooth.BluetoothServiceInfoBleak,
+        change: bluetooth.BluetoothChange,
+    ) -> None:
+        self.advertisements.async_observe(service_info)
 
     async def _async_connect(self) -> BleakClient:
         """Connect using Home Assistant's best current local or proxy route."""

@@ -53,6 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = HunterNodeCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
+    coordinator.async_start_advertisements()
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

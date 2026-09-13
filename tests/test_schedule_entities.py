@@ -66,15 +66,90 @@ class ScheduleEntityTests(unittest.IsolatedAsyncioTestCase):
     async def test_signal_strength_sensor_is_disabled_by_default(self):
         from homeassistant.helpers.entity import EntityCategory
 
-        from custom_components.hunter_node_bt.sensor import SENSORS, HunterNodeSensor
+        from custom_components.hunter_node_bt.advertisement import (
+            HunterNodeAdvertisements,
+        )
+        from custom_components.hunter_node_bt.sensor import (
+            SENSORS,
+            HunterNodeSignalSensor,
+        )
+
+        from .test_advertisement import advertisement
 
         self.coordinator.data = replace(self.coordinator.data, rssi=-71)
-        sensor = HunterNodeSensor(
+        self.coordinator.advertisements = HunterNodeAdvertisements()
+        sensor = HunterNodeSignalSensor(
             self.coordinator, next(description for description in SENSORS if description.key == "rssi")
         )
-        self.assertEqual(sensor.native_value, -71)
+        self.assertFalse(sensor.available)
+        self.assertIsNone(sensor.native_value)
+        self.coordinator.last_update_success = False
+        self.coordinator.advertisements.async_observe(advertisement(rssi=-101))
+        self.assertTrue(sensor.available)
+        self.assertEqual(sensor.native_value, -101)
+        self.assertEqual(sensor.extra_state_attributes["source"], "84:FC:E6:07:5C:A6")
+        self.assertTrue(sensor.force_update)
         self.assertEqual(sensor.entity_category, EntityCategory.DIAGNOSTIC)
         self.assertFalse(sensor.entity_registry_enabled_default)
+
+    async def test_advertisement_does_not_refresh_or_recover_poll_coordinator(self):
+        from custom_components.hunter_node_bt.advertisement import (
+            HunterNodeAdvertisements,
+        )
+        from custom_components.hunter_node_bt.coordinator import HunterNodeCoordinator
+
+        from .test_advertisement import advertisement
+
+        self.coordinator.advertisements = HunterNodeAdvertisements()
+        self.coordinator.last_update_success = False
+        snapshot = self.coordinator.data
+        HunterNodeCoordinator._async_advertisement(self.coordinator, advertisement(), None)
+        self.assertFalse(self.coordinator.last_update_success)
+        self.assertIs(self.coordinator.data, snapshot)
+        self.coordinator.async_set_updated_data.assert_not_called()
+        self.coordinator.async_request_refresh.assert_not_called()
+        self.coordinator.controller.read_data.assert_not_called()
+
+    async def test_advertisement_subscription_is_passive_and_unloaded(self):
+        from unittest.mock import patch
+
+        from homeassistant.components import bluetooth
+
+        from custom_components.hunter_node_bt.coordinator import HunterNodeCoordinator
+
+        with (
+            patch("custom_components.hunter_node_bt.coordinator.bluetooth.async_register_callback") as register,
+            patch("custom_components.hunter_node_bt.coordinator.async_track_time_interval") as timer,
+        ):
+            HunterNodeCoordinator.async_start_advertisements(self.coordinator)
+        register.assert_called_once_with(
+            self.coordinator.hass, self.coordinator._async_advertisement,
+            {"address": self.coordinator.address, "connectable": False},
+            bluetooth.BluetoothScanningMode.PASSIVE,
+        )
+        self.coordinator.config_entry.async_on_unload.assert_any_call(register.return_value)
+        self.coordinator.config_entry.async_on_unload.assert_any_call(timer.return_value)
+        self.assertEqual(timer.call_args.args[2].total_seconds(), 1)
+
+    async def test_signal_cache_sampling_does_not_connect(self):
+        from unittest.mock import patch
+
+        from custom_components.hunter_node_bt.advertisement import (
+            HunterNodeAdvertisements,
+        )
+        from custom_components.hunter_node_bt.coordinator import HunterNodeCoordinator
+
+        from .test_advertisement import advertisement
+
+        self.coordinator.advertisements = HunterNodeAdvertisements()
+        self.coordinator.last_update_success = False
+        with patch("custom_components.hunter_node_bt.coordinator.bluetooth.async_last_service_info") as cached:
+            cached.return_value = advertisement(rssi=-85)
+            HunterNodeCoordinator._async_sample_advertisement(self.coordinator)
+        self.assertEqual(self.coordinator.advertisements.data["rssi"], -85)
+        self.assertFalse(self.coordinator.last_update_success)
+        self.coordinator.async_request_refresh.assert_not_called()
+        self.coordinator.controller.read_data.assert_not_called()
 
     async def test_service_resolves_only_loaded_controller(self):
         from unittest.mock import patch

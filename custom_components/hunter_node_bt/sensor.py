@@ -89,7 +89,12 @@ async def async_setup_entry(
     """Set up controller sensors."""
     coordinator: HunterNodeCoordinator = entry.runtime_data
     async_add_entities(
-        HunterNodeSensor(coordinator, description) for description in SENSORS
+        (
+            HunterNodeSignalSensor(coordinator, description)
+            if description.key == "rssi"
+            else HunterNodeSensor(coordinator, description)
+        )
+        for description in SENSORS
     )
     async_add_entities(
         HunterNodeProgramSensor(coordinator, letter) for letter in PROGRAMS
@@ -119,6 +124,37 @@ class HunterNodeSensor(HunterNodeEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         return self.entity_description.value_fn(self.coordinator.data)
+
+
+class HunterNodeSignalSensor(HunterNodeSensor):
+    """Last received signal and payload, even when a GATT read fails."""
+
+    _attr_force_update = True
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.coordinator.advertisements.async_add_listener(
+                self.async_write_ha_state
+            )
+        )
+
+    @property
+    def available(self) -> bool:
+        # This is a last-observation diagnostic, not proof of GATT connectivity.
+        return self.coordinator.advertisements.data is not None
+
+    @property
+    def native_value(self) -> int | None:
+        data = self.coordinator.advertisements.data
+        return data["rssi"] if data is not None else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        data = self.coordinator.advertisements.data
+        if data is None:
+            return None
+        return {key: value for key, value in data.items() if key != "rssi"}
 
 
 class HunterNodeProgramSensor(HunterNodeProgramEntity, SensorEntity):

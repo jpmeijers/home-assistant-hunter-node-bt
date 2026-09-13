@@ -88,6 +88,26 @@ Opening a valve uses a safe default run time of 600 seconds (10 minutes). To cha
 The Bluetooth signal-strength sensor is a diagnostic entity disabled by default. To use it, open the device in Home
 Assistant, show disabled entities, and enable **Signal strength**.
 
+Once the integration is loaded, this sensor updates from advertisements independently of the hourly controller read.
+Payload changes arrive through passive callbacks. Since Home Assistant suppresses RSSI-only callbacks, the integration
+also checks its in-memory advertisement cache once per second, recording each new observation it finds. This cache
+check performs no Bluetooth I/O. Its attributes include `last_seen`, the receiving proxy/adapter (`source`), local name,
+connectable route, transmit power (when supplied), service UUIDs, manufacturer/service data as hex, and raw bytes when
+available. It retains the last observation even if a controller read fails or advertising stops; check `last_seen` for
+freshness. An available signal sensor does not mean a valve command can connect successfully.
+
+With the entity enabled and included in Home Assistant Recorder, each observed update is recorded even when RSSI
+is unchanged. Full observations are also logged at debug level by `custom_components.hunter_node_bt.advertisement`.
+Home Assistant and proxies can filter or coalesce radio packets, and multiple packets between cache checks may be
+combined. This is advertisement history, not a lossless over-the-air capture or a record from every proxy.
+Decoded service/manufacturer fields can be aggregated by Home Assistant; `raw`
+represents the latest packet when supplied. Passive listening does not connect, request a scan response, or postpone the
+hourly poll. Setup, explicit refreshes and control commands still make connections as needed.
+
+The frame captured from the tested controller was `0201060f094e4f44452d42542d373037373936`: flags `0x06` (general
+discoverable, BR/EDR unsupported) and complete local name `NODE-BT-707796`. This frame contained no battery, moisture,
+station state or schedule data. RSSI and receiver identity are receiver metadata, not bytes transmitted in that frame.
+
 ## Use
 
 Opening a station valve starts that station for the configured default duration. Closing any station valve sends the

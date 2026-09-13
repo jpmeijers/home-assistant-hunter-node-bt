@@ -20,5 +20,17 @@ async def async_get_config_entry_diagnostics(
     data["name"] = "Hunter NODE-BT"
     return {
         "last_update_success": coordinator.last_update_success,
+        "advertisement": (
+            {
+                **coordinator.advertisements.data,
+                "local_name": "REDACTED",
+                "source": "REDACTED",
+                "raw": "REDACTED",
+                "manufacturer_data": "REDACTED",
+                "service_data": "REDACTED",
+            }
+            if coordinator.advertisements.data is not None
+            else None
+        ),
         "data": data,
     }
